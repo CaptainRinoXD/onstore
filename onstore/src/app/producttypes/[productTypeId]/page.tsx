@@ -76,10 +76,11 @@ const ProductsTypePage = () => {
 
   return (
     <Layout>
-      <div style={{ backgroundColor: "#F8F8F8" }}>
-        <h3 className=" mb-2 text-slate-400">
-          Home | <strong>{productType.name}</strong>
-        </h3>
+      <div style={{ backgroundColor: "var(--background)" }}>
+      <h3 className="mb-4" style={{ marginLeft: "355px" }}>
+  Home | <strong>{productType.name}</strong>
+</h3>
+
       </div>
       <div
         style={{
@@ -89,13 +90,176 @@ const ProductsTypePage = () => {
           marginRight: "50px",
         }}
       >
-        <div style={{ padding: "20px", width: "20%" }}>
-          <h3>Filter by Size</h3>
-          <button>Small</button>
-          <button>Medium</button>
-          <button>Large</button>
-          <h3>Filter by Collection</h3>
-        </div>
+        <div
+      style={{
+        width: "20%",
+        backgroundColor: "var(--background)",
+        borderRadius: "8px",
+        // boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+      }}
+    >
+      <div style={{ marginBottom: "20px" }}>
+  <style>
+    {`
+      .filter-container input[type="checkbox"] {
+        display: none;
+      }
+
+      .filter-container label {
+        position: relative;
+        display: inline-block;
+        padding-left: 35px;
+        margin-bottom: 10px;
+        cursor: pointer;
+        font-size: 14px;
+        color: var(--color);
+      }
+
+      .filter-container label:before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 20px;
+        height: 20px;
+        border: 2px solid #4caf50;
+        border-radius: 4px;
+        background-color: white;
+        transition: background-color 0.3s, border-color 0.3s;
+      }
+
+      .filter-container input[type="checkbox"]:checked + label:before {
+        background-color: #4caf50;
+        border-color: #4caf50;
+      }
+
+      .filter-container input[type="checkbox"]:checked + label:after {
+        content: "✔";
+        position: absolute;
+        left: 5px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 14px;
+        color: white;
+      }
+
+      .filter-container h3 {
+        font-size: 18px;
+        color: var(--color);
+        margin-bottom: 25px;
+        text-decoration: underline;
+        text-decoration-thickness: 2px;
+        text-underline-offset: 15px;
+      }
+    `}
+  </style>
+
+  <h3 style={{
+    fontSize: "18px",
+    color: "var(--color)",
+    marginBottom: "25px",
+    textDecoration: "underline",
+    textDecorationThickness: "2px", // Độ dày của đường gạch chân
+    textUnderlineOffset: "15px", // Khoảng cách giữa chữ và gạch chân
+  }}>PRICE</h3>
+  <div className="filter-container">
+    <div>
+      <input type="checkbox" id="lh" />
+      <label htmlFor="lh">LOW TO HIGH</label>
+    </div>
+    <div>
+      <input type="checkbox" id="hl" />
+      <label htmlFor="hl">HIGH TO LOW</label>
+    </div>
+  </div>
+</div>
+
+<div style={{ marginBottom: "20px" }}>
+  <h3 style={{
+    fontSize: "18px",
+    color: "var(--color)",
+    marginBottom: "25px",
+    textDecoration: "underline",
+    textDecorationThickness: "2px", // Độ dày của đường gạch chân
+    textUnderlineOffset: "15px", // Khoảng cách giữa chữ và gạch chân
+  }}>ALPHABET</h3>
+  <div className="filter-container">
+    <div>
+      <input type="checkbox" id="az" />
+      <label htmlFor="az">A-Z</label>
+    </div>
+    <div>
+      <input type="checkbox" id="za" />
+      <label htmlFor="za">Z-A</label>
+    </div>
+  </div>
+</div>
+
+<div style={{ marginBottom: "20px" }}>
+  <h3 style={{
+    fontSize: "18px",
+    color: "var(--color)",
+    marginBottom: "25px",
+    textDecoration: "underline",
+    textDecorationThickness: "2px", // Độ dày của đường gạch chân
+    textUnderlineOffset: "15px", // Khoảng cách giữa chữ và gạch chân
+  }}>GENDER</h3>
+  <div className="filter-container">
+    <div>
+      <input type="checkbox" id="gender-women" />
+      <label htmlFor="gender-women">Women</label>
+    </div>
+  </div>
+</div>
+
+<div style={{ marginBottom: "20px" }}>
+  <h3 style={{
+    fontSize: "18px",
+    color: "var(--color)",
+    marginBottom: "25px",
+    textDecoration: "underline",
+    textDecorationThickness: "2px", // Độ dày của đường gạch chân
+    textUnderlineOffset: "15px", // Khoảng cách giữa chữ và gạch chân
+  }}>FABRIC</h3>
+  <div className="filter-container">
+    <div>
+      <input type="checkbox" id="fabric-lawn" />
+      <label htmlFor="fabric-lawn">Lawn</label>
+    </div>
+    <div>
+      <input type="checkbox" id="fabric-khaddar" />
+      <label htmlFor="fabric-khaddar">Khaddar</label>
+    </div>
+  </div>
+</div>
+
+<div style={{ marginBottom: "20px" }}>
+  <h3 style={{
+    fontSize: "18px",
+    color: "var(--color)",
+    marginBottom: "25px",
+    textDecoration: "underline",
+    textDecorationThickness: "2px", // Độ dày của đường gạch chân
+    textUnderlineOffset: "15px", // Khoảng cách giữa chữ và gạch chân
+  }}>Categories</h3>
+  <div className="filter-container">
+    <div>
+      <input type="checkbox" id="category-unstiched" />
+      <label htmlFor="category-unstiched">Women Unstitched</label>
+    </div>
+    <div>
+      <input type="checkbox" id="category-printed" />
+      <label htmlFor="category-printed">Printed</label>
+    </div>
+    <div>
+      <input type="checkbox" id="category-embroidered" />
+      <label htmlFor="category-embroidered">Embroidered</label>
+    </div>
+  </div>
+</div>
+
+    </div>
 
         <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
           <div>
@@ -154,42 +318,81 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onClick }) => {
         },
         body: JSON.stringify({ productId: product._id, quantity: 1, price: product.price }),
       });
-
+  
       if (!response.ok) {
         throw new Error('Failed to add product to cart');
       }
-
-     // message.success(`${product.name} added to cart!`); // Show success message
-    } catch (error) {
-     // message.error(error.message || 'An error occurred while adding to cart');
+  
+      message.success(`${product.name} added to cart!`);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        // Handle error when it's an instance of Error
+        message.error(error.message || 'An error occurred while adding to cart');
+      } else {
+        // Handle case when error is not an instance of Error
+        message.error('An unknown error occurred');
+      }
     }
   };
+  
 
   return (
-    <Card
-      hoverable
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      cover={
-        <div style={{ position: "relative" }}>
-          <img alt={product.name} src={product.images[0]} />
-          <motion.div
-            className="absolute bottom-0 transform -translate-x-1/2 p-2 cursor-pointer"
-            initial={{ opacity: 0, scale: 0.5 }}
-            animate={{ opacity: isHovered ? 1 : 0, scale: isHovered ? 1 : 0.5 }}
-            transition={{ duration: 0.2 }}
-            style={{ pointerEvents: isHovered ? 'auto' : 'none' }}
-          >
-            <div className="bg-black rounded-md p-2 opacity-75 hover:opacity-65" onClick={addToCart}>
-              <FiShoppingCart size={20} color="white" />
-            </div>
-          </motion.div>
-        </div>
-      }
+    <motion.div
+      whileHover={{ scale: 1.05, y: -5 }} // Scale up card and add a little upward movement
+      transition={{ duration: 0.3 }} // Smooth transition
+      style={{ 
+        borderRadius: "12px", 
+        boxShadow: "0 6px 15px rgba(0, 0, 0, 0.1)", 
+        overflow: "hidden",
+        cursor: "pointer"
+      }}
       onClick={onClick}
     >
-      <Card.Meta title={product.name} description={`Price: $${product.price}`} />
-    </Card>
+      <Card
+        hoverable
+        style={{
+          borderRadius: "12px",
+          transition: "transform 0.3s ease",
+          boxShadow: isHovered ? "0 10px 25px rgba(0, 0, 0, 0.1)" : "0 6px 15px rgba(0, 0, 0, 0.1)"
+        }}
+        cover={
+          <div
+            style={{ position: "relative", overflow: "hidden", borderRadius: "12px" }}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+          >
+            <img
+              alt={product.name}
+              src={product.images[0]}
+              style={{
+                transition: "transform 0.3s ease",
+                transform: isHovered ? "scale(1.1)" : "scale(1)", // Zoom in on image
+              }}
+            />
+            <motion.div
+              className="absolute bottom-0 transform -translate-x-1/2 p-2 cursor-pointer"
+              initial={{ opacity: 0, scale: 0.5 }}
+              animate={{ opacity: isHovered ? 1 : 0, scale: isHovered ? 1 : 0.5 }}
+              transition={{ duration: 0.3 }}
+              style={{ pointerEvents: isHovered ? 'auto' : 'none' }}
+            >
+              <div
+                className="bg-black rounded-md p-2 opacity-75 hover:opacity-80"
+                onClick={addToCart}
+              >
+                <FiShoppingCart size={20} color="white" />
+              </div>
+            </motion.div>
+          </div>
+        }
+      >
+        <Card.Meta
+          title={product.name}
+          description={`Price: $${product.price}`}
+          style={{ textAlign: "center", padding: "10px" }}
+        />
+      </Card>
+    </motion.div>
   );
 };
 

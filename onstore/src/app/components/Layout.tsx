@@ -99,7 +99,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         isSearchVisible={isSearchVisible}
         setSearchVisible={setSearchVisible}
       />
-      <main className="flex-grow">{children}</main>
+      <main className="flex-grow mt-16">{children}</main>
       <Footer />
       </StoreProvider>
     </div>
