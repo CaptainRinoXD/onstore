@@ -6,6 +6,7 @@ import { MenuItem } from '@mui/material';
 import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
 import MainDrawerList from './main/main.drawerlist';
 import { fetchNewestCollections } from "@/utils/services";
+import { useRouter } from "next/navigation";
 
 interface ProductType {
     _id: string;
@@ -29,6 +30,8 @@ interface HeaderProps {
     fetchProductTypes: () => void;
     isSearchVisible: boolean;
     setSearchVisible: (visible: boolean) => void;
+    isEmmployee: boolean;
+    isAdmin: boolean;
 }
 
 const Header: React.FC<HeaderProps> = ({
@@ -40,7 +43,9 @@ const Header: React.FC<HeaderProps> = ({
     productTypes,
     fetchProductTypes,
     isSearchVisible,
-    setSearchVisible
+    setSearchVisible,
+    isEmmployee,
+    isAdmin
 }) => {
     const [isMenuOpen, setMenuOpen] = useState(false);
     const [open, setOpen] = React.useState(false);
@@ -254,7 +259,7 @@ const Header: React.FC<HeaderProps> = ({
             </nav>
 
             {showUserModal && (
-                <UserModal username={username} handleLogout={handleLogout} toggleUserModal={toggleUserModal} />
+                <UserModal username={username} handleLogout={handleLogout} toggleUserModal={toggleUserModal} isAdmin={isAdmin} isEmmployee={isEmmployee} />
             )}
 
             <MainDrawerList
@@ -265,19 +270,38 @@ const Header: React.FC<HeaderProps> = ({
     );
 };
 
-const UserModal: React.FC<{ username: string; handleLogout: () => void; toggleUserModal: () => void; }> = ({ username, handleLogout, toggleUserModal }) => (
-    <div className="absolute top-16 right-5 bg-white shadow-md p-6 rounded-lg z-10 w-72 border border-gray-200">
-        <div className="flex flex-col items-center space-y-4">
-            <div className="flex items-center space-x-2">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                </svg>
-                <p className="font-semibold text-lg">Hi {username}</p>
+const UserModal: React.FC<{ username: string; handleLogout: () => void; toggleUserModal: () => void;  isAdmin: boolean, isEmmployee:boolean}> = ({ username, handleLogout, toggleUserModal, isAdmin, isEmmployee }) => {
+    const router = useRouter();
+    return(
+        <div className="absolute top-16 right-5 bg-white shadow-md p-6 rounded-lg z-10 w-72 border border-gray-200">
+            <div className="flex flex-col items-center space-y-4">
+                <div className="flex items-center space-x-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                    </svg>
+                    <p className="font-semibold text-lg">Hi {username}</p>
+                </div>
+                <hr className="w-full border-gray-300" />
+                <button className="flex items-center space-x-2 w-full text-left">
+                    <p>Your information</p>
+                </button>
+                <button className="flex items-center space-x-2 w-full text-left">
+                    <p>Your orders</p>
+                </button>
+                <hr className="w-full border-gray-300" />
+                <p className="text-sm italic text-gray-500 text-center">
+                    Clothes aren't going to change the world. <br /> The women who wear them will.
+                </p>
+                <div className="flex space-x-2 w-full">
+                    <button onClick={toggleUserModal} className="flex-grow py-2 rounded border border-gray-400 text-gray-600 hover:bg-gray-100">Close</button>
+                    <button onClick={handleLogout} className="flex-grow py-2 rounded border border-gray-400 bg-red-500 text-white hover:bg-red-600">Logout</button>
+                    {isAdmin || isEmmployee ? (
+                        <button onClick={() => router.push(`/dashboard`)} className="flex-grow py-2 rounded border border-gray-400 bg-red-500 text-white hover:bg-red-600">dashboard</button>
+                    ) : null}
+                </div>
             </div>
-            <hr className="w-full border-gray-300" />
-            <button onClick={handleLogout} className="w-full bg-red-500 text-white py-2 rounded-lg">Logout</button>
         </div>
-    </div>
-);
+    );  
+};
 
 export default Header;

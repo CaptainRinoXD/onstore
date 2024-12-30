@@ -24,6 +24,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [username, setUsername] = useState("");
   const [showUserModal, setShowUserModal] = useState(false);
   const [productTypes, setProductTypes] = useState<ProductType[]>([]);
+  const [isEmmployee, setEmployee] = useState(false);
+  const [isAdmin, setAdmin] = useState(false);
+
 
   useEffect(() => {
     const authCheck = async () => {
@@ -32,7 +35,12 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           if (data.isLoggedIn) {
             setUserLoggedIn(true);
             setUsername(data.username);
-            setShowUserModal(true);
+            if(data.role == "employee") {
+              setEmployee(true)
+            } else if(data.role == "admin") {
+              setAdmin(true)
+            }
+            //setShowUserModal(true);
           } else if (data.isGuested) {
             return;
           }
@@ -98,6 +106,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         fetchProductTypes={fetchProductTypesData}
         isSearchVisible={isSearchVisible}
         setSearchVisible={setSearchVisible}
+        isEmmployee={isEmmployee}
+        isAdmin={isAdmin}
+        
       />
       <main className="flex-grow mt-16">{children}</main>
       <Footer />
