@@ -67,6 +67,17 @@ const getProductsInCollection = async (req, res) => {
     }
 };
 
+const getNewestCollections = async (req, res) => {
+    try {
+        const collections = await Collection.find()
+            .sort({ createdAt: -1 }) // Sort by creation date, newest first
+            .limit(4); // Limit to 4 collections
+        res.status(200).json(collections);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
 // Export controller functions
 module.exports = {
     createCollection,
@@ -75,4 +86,5 @@ module.exports = {
     updateCollection,
     deleteCollection,
     getProductsInCollection,
+    getNewestCollections,
 };
