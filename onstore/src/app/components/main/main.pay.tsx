@@ -13,7 +13,8 @@ import {
   styled,
   TextField,
   Typography,
-  Grid
+  Grid,
+  CircularProgress
 } from "@mui/material";
 import React, { useEffect, useState, useCallback } from "react";
 import { formatPrice } from "@/utils/functionShare";
@@ -80,8 +81,12 @@ const MainPay = () => {
   const [errorAddress, setErrorAddress] = useState<string>("");
 
   const [isOpenStripe, setIsOpenStripe] = useState<boolean>(false);
+  const [isPaymentMOMO, setIsPaymentMOMO] = useState<boolean>(false);
+  const [loadingMOMO, setLoadingMOMO] = useState<boolean>(false);
 
   const [cart, setCart] = useState<Icart | null>(null);
+  const [order, setOrder] = useState<string | null>(null);
+
 
     const getCart = useCallback(async () => {
       try {
@@ -142,7 +147,32 @@ const MainPay = () => {
   const handleAddOrder = async () => {
     if(!cart) return;
     const res = await handleAddOrderServices(); 
-    console.log(res)
+    try {
+      const data = await res.json();
+      console.log("orderID đã được tạo: " + data);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+    
+    if (res) {
+      //if (value == "TM") router.push("/");
+    } else {
+      message.error("Đặt hàng không thành công");
+    }
+  };
+
+  const handleAddOrderMOMO = async () => {
+    if(!cart) return;
+    const res = await handleAddOrderServices(); 
+    try {
+      const data = await res.json();
+      //setOrder(data);
+      console.log("orderID đã được tạo: " + data);
+      await MOMOpayurl(data);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+    
     if (res) {
       //if (value == "TM") router.push("/");
     } else {
@@ -153,6 +183,50 @@ const MainPay = () => {
   const handleSubmit = async () => {
     if ((await handleCheck()) == false) return;
     await handleAddOrder();
+  };
+
+  const handleSubmitMOMO = async () => {
+    if ((await handleCheck()) == false) return;
+      setLoadingMOMO(true);
+      await handleAddOrderMOMO();
+  };
+
+
+
+  const MOMOpayurl = async (orderId:string) => {
+    try {
+      const response = await fetch('http://localhost:3002/api/payment', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ orderID: orderId }), // Wrap orderId in an object
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Error from /api/payment:', errorData);
+        message.error("Lỗi thanh toán, vui lòng thử lại.");
+          setLoadingMOMO(false);
+        return;
+      }
+
+      const data = await response.json();
+      //console.log('Payment response:', data);
+
+      if (data && data.payUrl) {
+        window.open(data.payUrl, '_blank');
+          setLoadingMOMO(false);
+      } else {
+        message.error("Không tìm thấy URL thanh toán");
+          setLoadingMOMO(false);
+      }
+    } catch (error) {
+      console.error('Error during payment request:', error);
+      message.error("Lỗi thanh toán, vui lòng thử lại.");
+        setLoadingMOMO(false);
+    }
   };
 
   useEffect(() => {
@@ -169,6 +243,13 @@ const MainPay = () => {
       setHelperText(
         "Thực hiện thanh toán vào ngay tài khoản ngân hàng của chúng tôi." +
           "Đơn hàng sẽ đươc giao sau khi tiền đã chuyển."
+      );
+    } else if (value === "MOMO") {
+      setIsOpenStripe(false);
+      setIsPaymentMOMO(true);
+      setHelperText(
+        "Thực hiện thanh toán bằng MoMo thuận tiện đơn giản." +
+        " Đơn hàng sẽ được gửi ghi thanh toán thành công."
       );
     }
   }, [value]);
@@ -227,7 +308,7 @@ const MainPay = () => {
             return (
               <Stack direction="row" key={item._id}>
                 <Item sx={{ borderRight: "0px", fontWeight: 500 }}>
-                  {item.product.name} x{item.quantity}{" "}
+                  {item.product.name} x{item.quantity}x{item.size}{" "}
                 </Item>
                 <Item sx={{ fontWeight: 500 }}>
                   {formatPrice(item.product.price * item.quantity)}₫
@@ -262,17 +343,38 @@ const MainPay = () => {
                 control={<Radio />}
                 label="Chuyển khoản ngân hàng."
               />
+              <FormControlLabel
+                value="MOMO"
+                control={<Radio />}
+                label="Thanh toán qua MOMO"
+              />
             </RadioGroup>
             <FormHelperText>{helperText}</FormHelperText>
           </FormControl>
         </Box>
-        {/* {isOpenStripe && (
-          // <HomeStripe
-          //   handleCheck={handleCheck}
-          //   handleAddOrder={handleAddOrder}
-          // ></HomeStripe>
-        )} */}
-        {!isOpenStripe && (
+        {isOpenStripe && !isPaymentMOMO && (
+          <HomeStripe
+            handleCheck={handleCheck}
+            handleAddOrder={handleAddOrder}
+          ></HomeStripe>
+        )}
+        
+        {isPaymentMOMO && (
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <Button
+                  color="secondary"
+                  sx={{ padding: "10px 20px" }}
+                  variant="outlined"
+                  onClick={handleSubmitMOMO}
+                  disabled={loadingMOMO}
+                >
+                    Thanh toán qua trang Liên kết MOMO
+              </Button>
+              {loadingMOMO && <CircularProgress size={30} sx={{marginLeft: "10px", color: '#e91e63'}} />}
+          </Box>
+        )}
+
+        {!isOpenStripe && !isPaymentMOMO && (
           <Box
             sx={{
               display: "flex",

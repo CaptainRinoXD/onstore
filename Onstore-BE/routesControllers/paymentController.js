@@ -7,6 +7,7 @@ exports.paymentController = async(req, res) => {
     //parameters
     let orderTotal;
     const { orderID } = req.body;
+    console.log(orderID);
     try {
       const order = await Order.findById(orderID);
       if(!order) {
@@ -84,7 +85,7 @@ exports.paymentController = async(req, res) => {
         result = await axios(options);
         return res.status(200).json(result.data);
     } catch (error) {
-        return res.status(500).json(error.response.data)
+        return res.status(500).json(error.response.data);
     }
 
 }
@@ -172,8 +173,22 @@ exports.checkPaymentStatus = async(req,res) => {
       },
       data: requestBody,
     };
-
+    
+    const { resultCode } = req.body;
     try {
+      if (resultCode === 0) {
+        // Update payment status if the transaction was successful
+        const updatedOrder =  await Order.findOneAndUpdate(
+            { _id: orderId },
+            { paymentStatus: 'Successful' },
+            { new: true }
+        );
+        if(!updatedOrder) {
+          return res.status(404).json({message: "Order not found!"})
+        }
+      }else {
+        console.log("Thanh toan khong thanh cong");
+      }
         const result = await axios(options);
         return res.status(200).json(result.data);
     } catch (error) {

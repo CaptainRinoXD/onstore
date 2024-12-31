@@ -80,7 +80,7 @@ export const handleAddOrderServices = async () => {
       if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
       }
-      return await response.json();
+      return response;
   } catch (error) {
       console.error('Error logging out', error);
       throw error;

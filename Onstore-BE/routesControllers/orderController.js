@@ -36,7 +36,7 @@ exports.createOrder = async (req, res) => {
         // Optionally, after successful order placement, clear the cart
         await Cart.findByIdAndDelete(cart._id); // clear the cart after creating an order
 
-        res.status(201).json(newOrder);
+        res.status(201).json(newOrder._id);
     } catch (error) {
         res.status(500).json({ error:"cannot create order "+ error.message });
     }
@@ -116,5 +116,15 @@ exports.deleteOrder = async (req, res) => {
         res.status(204).send(); // No content to send
     } catch (error) {
         res.status(500).json({ error: error.message });
+    }
+};
+
+exports.deleteAllOrder = async (req, res) => {
+    console.log("deleteAllOrder called");
+    try {
+        await Order.deleteMany({});
+        res.status(204).send();
+    } catch (error) {
+        res.status(404).json({ message: error.message });
     }
 };
