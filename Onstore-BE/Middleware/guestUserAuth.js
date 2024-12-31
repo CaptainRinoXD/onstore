@@ -14,7 +14,7 @@ const guestUserAuth = async (req, res, next) => {
             req.guestId = guestId;
         } else if(req.cookies.guestId && !req.cookies.refreshToken){
             req.guestId = req.cookies.guestId;
-            console.log(req.guestId);
+            //console.log(req.guestId);
         }
         
         next();

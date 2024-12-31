@@ -1,6 +1,7 @@
 const axios = require('axios');
 const crypto = require('crypto');
 const Order = require('../Model/order');
+const mongoose = require('mongoose');
 
 exports.paymentController = async(req, res) => {
     //https://developers.momo.vn/#/docs/en/aiov2/?id=payment-method
@@ -8,11 +9,21 @@ exports.paymentController = async(req, res) => {
     let orderTotal;
     const { orderID } = req.body;
     console.log(orderID);
+    if (!mongoose.Types.ObjectId.isValid(orderID)) {
+      console.log('Invalid Order ID');
+      return res.status(400).json({ message: 'Invalid Order ID format' });
+    }
     try {
       const order = await Order.findById(orderID);
       if(!order) {
         console.log('Order not found');
         return;
+      }
+      if (orderTotal <1000) {
+        console.log("Order total is less than 1000 or not an integer");
+        return res.status(400).json({ message: "Order total must be at least 1000"});
+      } else if ( !Number.isInteger(orderTotal)) {
+        orderTotal= Math.round(orderTotal);
       }
       orderTotal = order.total;
       console.log(orderTotal);
