@@ -31,7 +31,7 @@ const orderSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
-  status: {
+  shippingStatus: {
     type: String,
     required: true,
     enum: ['Pending', 'Shipped', 'Delivered', 'Cancelled'],
@@ -46,8 +46,14 @@ const orderSchema = new mongoose.Schema({
   },
   paymentMethod: {
     type: String,
-    enum: ['Credit Card', 'PayPal', 'Bank Transfer', 'Cash on Delivery'],
+    enum: ['Credit Card', 'PayPal', 'Bank Transfer', 'Cash on Delivery', 'MOMO'],
     required: false,
+  },
+  paymentStatus: {
+    type: String,
+    enum: ['Successful','Pending','Failed'],
+    required: false,
+    default:'Pending',
   },
   trackingNumber: {
     type: String,
@@ -57,7 +63,6 @@ const orderSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
-  
   updatedAt: {
     type: Date,
     default: Date.now,

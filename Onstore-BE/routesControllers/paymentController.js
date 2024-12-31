@@ -1,18 +1,34 @@
 const axios = require('axios');
 const crypto = require('crypto');
+const Order = require('../Model/order');
 
 exports.paymentController = async(req, res) => {
     //https://developers.momo.vn/#/docs/en/aiov2/?id=payment-method
     //parameters
+    let orderTotal;
+    const { orderID } = req.body;
+    try {
+      const order = await Order.findById(orderID);
+      if(!order) {
+        console.log('Order not found');
+        return;
+      }
+      orderTotal = order.total;
+      console.log(orderTotal);
+    }catch(error) {
+      console.log(error);
+    }
+
+  
     var accessKey = 'F8BBA842ECF85';
     var secretKey = 'K951B6PE1waDMi640xX08PD3vg6EkVlz';
     var orderInfo = 'pay with MoMo';
     var partnerCode = 'MOMO';
     var redirectUrl = 'https://webhook.site/b3088a6a-2d17-4f8d-a383-71389a6c600b';
-    var ipnUrl = 'https://2fb0-2402-800-61ce-def-74b9-697f-9d05-2627.ngrok-free.app/api/paymemtCallBack';
+    var ipnUrl = 'https://a1d7-2402-800-61ce-def-a571-2d31-d1f-69d1.ngrok-free.app/api/paymemtCallBack';
     var requestType = "payWithMethod";
-    var amount = '50000';
-    var orderId = partnerCode + new Date().getTime();
+    var amount = orderTotal;   //get from order
+    var orderId = orderID;     //get from req.body
     var requestId = orderId;
     var extraData ='';
     var orderGroupId ='';
@@ -81,6 +97,28 @@ exports.callbackController = async(req, res) => {
    */
     console.log('callback: ');
     console.log(req.body);
+
+    const { orderId, resultCode } = req.body;
+
+    
+    try {
+      if (resultCode === 0) {
+          // Update payment status if the transaction was successful
+         const updatedOrder =  await Order.findOneAndUpdate(
+              { _id: orderId },
+              { paymentStatus: 'Successful' },
+              { new: true }
+          );
+         if(!updatedOrder) {
+          return res.status(404).json({message: "Order not found!"})
+         }
+      }
+          return res.status(200).json({ message: 'Callback received', body: req.body});
+    } catch (error) {
+      console.error('Error updating order status:', error);
+      return res.status(500).json({ message: 'Error processing callback' , error: error.message });
+    }
+
       /**
    * Dựa vào kết quả này để update trạng thái đơn hàng
    * Kết quả log:
@@ -100,8 +138,6 @@ exports.callbackController = async(req, res) => {
         signature: '10398fbe70cd3052f443da99f7c4befbf49ab0d0c6cd7dc14efffd6e09a526c0'
       }
    */
-
-  return res.status(200).json(req.body);
 }
 
 exports.checkPaymentStatus = async(req,res) => {
