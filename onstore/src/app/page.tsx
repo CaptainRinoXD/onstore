@@ -209,7 +209,7 @@ export default function Home() {
   <div className="categories-grid">
     <div className="category-item large">
       <div className="category-image-container">
-        <img src="/winter-unstitched.jpg" alt="Winter Unstitched" />
+        <img src="https://global.bonanzasatrangi.com/cdn/shop/files/Tile-Banner-1800-x1800_a20b3f6d-ce63-4e9c-ac3b-d51cb8f754a3_1000x.jpg?v=1730972167" alt="Winter Unstitched" />
         <div className="category-overlay">
           <h3>WINTER UNSTITCHED</h3>
           <button className="shop-now-btn">SHOP NOW</button>
@@ -219,7 +219,7 @@ export default function Home() {
     
     <div className="category-item">
       <div className="category-image-container">
-        <img src="/ready-to-wear.jpg" alt="Ready to Wear" />
+        <img src="https://global.bonanzasatrangi.com/cdn/shop/files/Tile-Banner-WomensToReady-600-x600_400x.jpg?v=1729627405" alt="Ready to Wear" />
         <div className="category-overlay">
           <h3>READY TO WEAR</h3>
           <button className="shop-now-btn">SHOP NOW</button>
@@ -229,7 +229,7 @@ export default function Home() {
     
     <div className="category-item">
       <div className="category-image-container">
-        <img src="/mens-unstitched.jpg" alt="Men's Unstitched" />
+        <img src="https://global.bonanzasatrangi.com/cdn/shop/files/Sweaters_tile_400x.jpg?v=1729627570" alt="Men's Unstitched" />
         <div className="category-overlay">
           <h3>MEN'S UNSTITCHED</h3>
           <button className="shop-now-btn">SHOP NOW</button>
@@ -239,7 +239,7 @@ export default function Home() {
     
     <div className="category-item">
       <div className="category-image-container">
-        <img src="/mens-stitched.jpg" alt="Men's Stitched" />
+        <img src="https://global.bonanzasatrangi.com/cdn/shop/files/Sweaters_tile_400x.jpg?v=1729627570" alt="Men's Stitched" />
         <div className="category-overlay">
           <h3>MEN'S STITCHED</h3>
           <button className="shop-now-btn">SHOP NOW</button>
@@ -249,7 +249,17 @@ export default function Home() {
     
     <div className="category-item">
       <div className="category-image-container">
-        <img src="/sweaters.jpg" alt="Sweaters" />
+        <img src="https://global.bonanzasatrangi.com/cdn/shop/files/Sweaters_tile_400x.jpg?v=1729627570" alt="Sweaters" />
+        <div className="category-overlay">
+          <h3>SWEATERS</h3>
+          <button className="shop-now-btn">SHOP NOW</button>
+        </div>
+      </div>
+    </div>
+
+    <div className="category-item">
+      <div className="category-image-container">
+        <img src="https://global.bonanzasatrangi.com/cdn/shop/files/Sweaters_tile_400x.jpg?v=1729627570" alt="Sweaters" />
         <div className="category-overlay">
           <h3>SWEATERS</h3>
           <button className="shop-now-btn">SHOP NOW</button>
