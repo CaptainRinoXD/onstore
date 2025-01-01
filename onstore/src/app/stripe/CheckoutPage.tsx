@@ -62,7 +62,7 @@ const CheckoutPage = (props: IProps) => {
       elements,
       clientSecret,
       confirmParams: {
-        return_url: `http://localhost:3000/`,
+        return_url: `http://localhost:3000/thank`,
       },
     });
 

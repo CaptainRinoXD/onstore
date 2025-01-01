@@ -43,6 +43,10 @@ const AdminSideBar = () => {
           key: "Collection",
           label: <Link href={"/dashboard/coll"}>Manage Collection</Link>,
         },
+        {
+          key: "order",
+          label: <Link href={"/dashboard/order"}>Manage Order</Link>,
+        },
       ],
     },
   ];
