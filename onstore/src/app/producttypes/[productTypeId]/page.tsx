@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { FiShoppingCart } from "react-icons/fi";
 import { useParams, useRouter } from "next/navigation";
 import { fetchProductTypes, fetchCollections } from "@/utils/services";
+import MainDrawerList from '@/app/components/main/main.drawerlist';
 
 
 interface Product {
@@ -55,8 +56,13 @@ const ProductsTypePage = () => {
   const [productType, setProductType] = useState<ProductType | null>(null);
   const [allProductTypes, setAllProductTypes] = useState<ProductType[]>([]);
   const [allCollection, setAllCollection] = useState<Collection[]>([]);
+  const [open, setOpen] = React.useState(false);
   const { productTypeId } = useParams();
   const router = useRouter();
+
+  const toggleDrawer = (newOpen: boolean) => () => {
+    setOpen(newOpen);
+  };
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -312,6 +318,7 @@ const ProductsTypePage = () => {
                     onClick={() => {
                       router.push(`/producttypes/${productTypeId}/products/${product._id}`, { scroll: true });
                     }}
+                    toggleDrawer={toggleDrawer} 
                   />
                 </Col>
               ))}
@@ -319,6 +326,11 @@ const ProductsTypePage = () => {
           </div>
         </div>
       </div>
+
+      <MainDrawerList
+        toggleDrawer={toggleDrawer}
+        open={open}
+      />
     </Layout>
   );
 };
@@ -326,10 +338,13 @@ const ProductsTypePage = () => {
 interface ProductCardProps {
   product: Product;
   onClick: () => void;
+  toggleDrawer: (open: boolean) => () => void;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ product, onClick }) => {
+const ProductCard: React.FC<ProductCardProps> = ({ product, onClick, toggleDrawer }) => {
   const [isHovered, setIsHovered] = useState(false);
+  
+
 
   const addToCart = async (event: React.MouseEvent) => {
     event.stopPropagation(); // Stop event bubbling
@@ -348,6 +363,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onClick }) => {
       }
   
       message.success(`${product.name} added to cart!`);
+      toggleDrawer(true)();
     } catch (error: unknown) {
       if (error instanceof Error) {
         // Handle error when it's an instance of Error
@@ -417,6 +433,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onClick }) => {
         />
       </Card>
     </motion.div>
+
+    
   );
 };
 

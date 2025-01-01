@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import Image from "next/image";
-import { formatPrice, handleCaculateTotalPrice } from "@/utils/functionShare";
+import { formatPrice } from "@/utils/functionShare";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useCallback } from "react";
 
@@ -52,7 +52,6 @@ const MainDrawerList = (props: any) => {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
         const data = await response.json();
-        //console.log("cart data: " + JSON.stringify(data));
         setCart(data);
       } catch (error) {
          console.log("Error fetching cart:", error);
@@ -61,27 +60,33 @@ const MainDrawerList = (props: any) => {
 
 
     const handleDeteleItem = async (itemId: string) => {
-        try {
-          const response = await fetch(`http://localhost:3002/api/carts/cartId/items/${itemId}`, {
-            method: 'DELETE',
-            credentials: 'include',
-            headers: {
-                'Content-Type': 'application/json',
-            }
-          })
-           if(!response.ok){
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-          getCart();
-        } catch (error) {
-          console.log("error detele item cart:" + error);
+        const confirmed = window.confirm("Are you sure you want to delete this item from cart?");
+        if (!confirmed) {
+            return; // Do nothing if the user cancels
         }
+      try {
+        const response = await fetch(`http://localhost:3002/api/carts/cartId/items/${itemId}`, {
+          method: 'DELETE',
+          credentials: 'include',
+          headers: {
+              'Content-Type': 'application/json',
+          }
+        })
+         if(!response.ok){
+              throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+        getCart();
+      } catch (error) {
+        console.log("error detele item cart:" + error);
+      }
 
-    };
+  };
 
     useEffect(() => {
-        getCart();
-    }, [getCart]);
+       if(open) {
+         getCart();
+       }
+    }, [open, getCart]);
     
 
     return (

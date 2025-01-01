@@ -308,7 +308,7 @@ const MainPay = () => {
         if (paymentSuccess) {
             const timeoutId = setTimeout(() => {
                 router.push("/");
-            }, 5000);
+            }, 50000000);
             return () => clearTimeout(timeoutId);
         }
     }, [paymentSuccess, router]);
