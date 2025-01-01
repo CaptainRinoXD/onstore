@@ -1,33 +1,34 @@
-import {  useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 
 export const handleCaculateTotalPrice = () => {
-    const cart: ICart[] = useSelector((state: any) => state.order.carts);
-    let totalPrice: number = 0;
+  const cart: ICart[] = useSelector((state: any) => state.order.carts);
+  let totalPrice: number = 0;
 
-    cart.map((item) => {
+  cart.map((item) => {
     totalPrice += item.detail.price * item.quantity;
-    });
-    return totalPrice;
+  });
+  return totalPrice;
 };
 
 export const handleCaculateStripe = () => {
-    const cart: ICart[] = useSelector((state: any) => state.order.carts);
-    let totalPrice: number = 0;
+  // const cart: ICart[] = useSelector((state: any) => state.order.carts);
+  // let totalPrice: number = 0;
 
-    cart.map((item) => {
-    totalPrice += item.detail.price * item.quantity;
-    });
+  // cart.map((item) => {
+  // totalPrice += item.detail.price * item.quantity;
+  // });
 
-    if (totalPrice == 0) totalPrice= 1000
-    return totalPrice * 1000;
+  let totalPrice: number = +(localStorage.getItem("totalPrice") || 0);
+
+  if (totalPrice == 0) totalPrice = 1000;
+  return totalPrice;
 };
 
 export const formatPrice = (price: number) => {
-    const formattedNumber = price.toLocaleString('vi-VN');
-    return formattedNumber
-}
+  const formattedNumber = price.toLocaleString("vi-VN");
+  return formattedNumber;
+};
 
-export  const convertToSubcurrency = (amount: number, factor = 1000) => {
-    return Math.round(amount);
-}
-  
+export const convertToSubcurrency = (amount: number, factor = 1000) => {
+  return Math.round(amount);
+};
