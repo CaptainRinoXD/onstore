@@ -1,3 +1,4 @@
+// d:\-----.Projects\2024-OnlineStore_NodeJS\NEW\onstore\onstore\src\app\components\admin\productType\productType.create.tsx
 import { handleCreateProductAction, handleCreateProductTypeAction } from "@/utils/actions";
 import {
   Modal,
@@ -7,6 +8,9 @@ import {
   Col,
   message,
   notification,
+  Upload,
+  UploadProps,
+  Button,
 } from "antd";
 import { useEffect, useState } from "react";
 
@@ -25,15 +29,38 @@ const ProductTypeCreate = (props: IProps) => {
 
   const [form] = Form.useForm();
   const [sizeStocks, setSizeStocks] = useState<SizeStock[]>([]);
+    const [fileList, setFileList] = useState<any[]>([]);
 
+    const uploadProps: UploadProps = {
+    beforeUpload: (file) => {
+      setFileList([file]);
+      return false; // Prevent default upload
+    },
+    fileList: fileList,
+    onRemove: () => {
+      setFileList([]);
+    },
+    };
+
+
+    
   const handleCloseCreateModal = () => {
     form.resetFields();
     setIsCreateModalOpen(false);
-    setSizeStocks([]); // Reset sizeStocks when closing the modal
+    setFileList([]);
+    setSizeStocks([]);
   };
 
   const onFinish = async (values: any) => {
-    const res = await handleCreateProductTypeAction({ ...values });
+    const formData = new FormData();
+    formData.append('name', values.name);
+    formData.append('description', values.description);
+    if(fileList && fileList.length > 0){
+        formData.append('image', fileList[0]);
+    }
+    
+    const res = await handleCreateProductTypeAction(formData);
+    
     if (res) {
       handleCloseCreateModal();
       message.success("Create succeed!");
@@ -65,7 +92,7 @@ const ProductTypeCreate = (props: IProps) => {
               <Input />
             </Form.Item>
           </Col>
-          <Col span={12}>
+            <Col span={12}>
             <Form.Item
               label="Description"
               name="description"
@@ -75,17 +102,15 @@ const ProductTypeCreate = (props: IProps) => {
             </Form.Item>
           </Col>
         </Row>
-        {/* <Row gutter={[15, 15]}>
-          <Col span={8}>
-            <Form.Item
-              label="Image"
-              name="images"
-              rules={[{ required: true, message: "Please input your image!" }]}
-            >
-              <Input />
+          <Row gutter={[15, 15]}>
+          <Col span={24}>
+             <Form.Item label="Image">
+                <Upload {...uploadProps} >
+                     <Button>Select Image</Button>
+                </Upload>
             </Form.Item>
           </Col>
-        </Row> */}
+        </Row>
       </Form>
     </Modal>
   );

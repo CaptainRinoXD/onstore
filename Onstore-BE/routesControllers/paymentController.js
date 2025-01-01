@@ -186,8 +186,11 @@ exports.checkPaymentStatus = async(req,res) => {
       data: requestBody,
     };
     
-    const { resultCode } = req.body;
+    
     try {
+      const result = await axios(options);
+      const { resultCode } = result.data;
+      console.log(resultCode);
       if (resultCode === 0) {
         // Update payment status if the transaction was successful
         const updatedOrder =  await Order.findOneAndUpdate(
@@ -195,13 +198,14 @@ exports.checkPaymentStatus = async(req,res) => {
             { paymentStatus: 'Successful' },
             { new: true }
         );
+        console.log("Thanh toan thanh cong!");
         if(!updatedOrder) {
           return res.status(404).json({message: "Order not found!"})
         }
       }else {
         console.log("Thanh toan khong thanh cong");
       }
-        const result = await axios(options);
+        
         return res.status(200).json(result.data);
     } catch (error) {
         console.log(error);

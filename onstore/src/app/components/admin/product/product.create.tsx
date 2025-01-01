@@ -30,16 +30,19 @@ const ProductCreate = (props: IProps) => {
   const [listColl, setlistColl] = useState([]);
   const [listType, setlistType] = useState([]);
   const [sizeStocks, setSizeStocks] = useState<SizeStock[]>([]);
+    const [images, setImages] = useState<string[]>([]);
 
   const handleCloseCreateModal = () => {
     form.resetFields();
     setIsCreateModalOpen(false);
-    setSizeStocks([]); // Reset sizeStocks when closing the modal
+    setSizeStocks([]);
+      setImages([]);
   };
 
   const onFinish = async (values: any) => {
     const res = await handleCreateProductAction({
       ...values,
+        images: images,
       sizeStock: sizeStocks,
     });
     if (res) {
@@ -52,6 +55,21 @@ const ProductCreate = (props: IProps) => {
       });
     }
   };
+
+    const handleAddImage = () => {
+        setImages([...images, ""]); // Add an empty string to the images array
+    };
+
+
+    const handleImageChange = (index: number, value: string) => {
+        const newImages = [...images];
+        newImages[index] = value;
+        setImages(newImages);
+    };
+    const handleRemoveImage = (index: number) => {
+        const newImages = images.filter((_, i) => i !== index);
+        setImages(newImages);
+    };
 
   const handleGetColl = async () => {
     const respon = await fetch(`http://localhost:3002/api/collections`, {
@@ -220,21 +238,33 @@ const ProductCreate = (props: IProps) => {
               <Input />
             </Form.Item>
           </Col>
-          <Col span={8}>
-            <Form.Item
-              label="Image"
-              name="images"
-              rules={[
-                { required: false, message: "Please input your image!" },
-                {
-                  type: 'url',
-                  message: 'Please enter a valid URL',
-                },
-              ]}
-            >
-              <Input />
-            </Form.Item>
-          </Col>
+            <Col span={16}>
+                <Form.Item label="Images">
+                    {images.map((image, index) => (
+                        <Row key={index} gutter={[8, 8]} style={{ marginBottom: 10 }}>
+                            <Col span={20}>
+                                <Input
+                                    placeholder="Image URL"
+                                    value={image}
+                                    onChange={(e) => handleImageChange(index, e.target.value)}
+                                />
+                            </Col>
+                            <Col span={4}>
+                                <Button
+                                    type="dashed"
+                                    danger
+                                    onClick={() => handleRemoveImage(index)}
+                                >
+                                    Remove
+                                </Button>
+                            </Col>
+                        </Row>
+                    ))}
+                    <Button type="dashed" onClick={handleAddImage}>
+                        Add Image
+                    </Button>
+                </Form.Item>
+            </Col>
         </Row>
         <Row gutter={[15, 15]}>
           <Col span={8}>

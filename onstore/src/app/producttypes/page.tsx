@@ -4,7 +4,7 @@ import { Row, Col, Card, message } from "antd";
 import Layout from "@/app/components/Layout";
 import { motion } from "framer-motion";
 import { FiShoppingCart } from "react-icons/fi";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { fetchProductTypes, fetchCollections } from "@/utils/services";
 import MainDrawerList from '@/app/components/main/main.drawerlist';
 
@@ -54,32 +54,57 @@ interface Collection {
 const ProductsTypePage = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [productType, setProductType] = useState<ProductType | null>(null);
-  const [allProductTypes, setAllProductTypes] = useState<ProductType[]>([]);
-  const [allCollection, setAllCollection] = useState<Collection[]>([]);
+    const [allProductTypes, setAllProductTypes] = useState<ProductType[]>([]);
+    const [allCollections, setAllCollections] = useState<Collection[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [open, setOpen] = React.useState(false);
-  const { productTypeId } = useParams();
-  const router = useRouter();
+    const [selectedType, setSelectedType] = useState<string | null>(null);
+    const [selectedCollection, setSelectedCollection] = useState<string | null>(null);
+  const searchParams = useSearchParams();
+    const router = useRouter();
+    const productTypeId = searchParams.get("type");
+    const collectionId = searchParams.get("collection");
+  const [priceFilter, setPriceFilter] = useState<'lowToHigh' | 'highToLow' | null>(null);
+  const [alphabetFilter, setAlphabetFilter] = useState<'aToZ' | 'zToA' | null>(null);
+
 
   const toggleDrawer = (newOpen: boolean) => () => {
     setOpen(newOpen);
   };
 
-  useEffect(() => {
+    useEffect(() => {
+        // Initialize selectedType and selectedCollection from URL
+        if (productTypeId) {
+            setSelectedType(productTypeId);
+        } else {
+            setSelectedType(null);
+        }
+
+        if (collectionId) {
+            setSelectedCollection(collectionId);
+        } else {
+            setSelectedCollection(null);
+        }
+
+
     const fetchProducts = async () => {
-      if (!productTypeId) return;
       const response = await fetch(
-        `http://localhost:3002/api/product/${productTypeId}/products`
+        `http://localhost:3002/api/products`
       );
       const data: Product[] = await response.json();
-      setProducts(data);
+        setProducts(data);
     };
 
     const fetchProductType = async () => {
-      if (!productTypeId) return;
-      const response = await fetch(
-        `http://localhost:3002/api/product-types/${productTypeId}`
-      );
-      const data: ProductType = await response.json();
+        let data: ProductType | null = null;
+         if (productTypeId) {
+            const response = await fetch(
+              `http://localhost:3002/api/product-types/${productTypeId}`
+            );
+           data = await response.json();
+        } else {
+             data = { name: "All Products", image: "https://global.bonanzasatrangi.com/cdn/shop/collections/Category-Banner_c1b4dfc7-cd89-4eca-9c6f-4c5e0036886e.webp?v=1731470439", _id: "all" };
+        }
       setProductType(data);
     };
 
@@ -95,7 +120,7 @@ const ProductsTypePage = () => {
     const loadCollection = async () => {
       try {
           const collection = await fetchCollections();
-          setAllCollection(collection);
+           setAllCollections(collection);
       } catch (error) {
           console.error("Failed to load collection:", error);
       }
@@ -106,7 +131,123 @@ const ProductsTypePage = () => {
     fetchProductType();
     loadProductTypes();
     loadCollection();
-  }, [productTypeId]);
+  }, [productTypeId, collectionId]);
+
+  const fetchProductType = async (typeId: string | null) => {
+    let data: ProductType | null = null;
+    if (typeId) {
+      const response = await fetch(
+        `http://localhost:3002/api/product-types/${typeId}`
+      );
+      data = await response.json();
+    } else {
+      data = {
+        name: "All Products",
+        image: "https://global.bonanzasatrangi.com/cdn/shop/collections/Category-Banner_c1b4dfc7-cd89-4eca-9c6f-4c5e0036886e.webp?v=1731470439",
+        _id: "all",
+      };
+    }
+    setProductType(data);
+  };
+
+  useEffect(() => {
+    fetchProductType(selectedType);
+  }, [selectedType]);
+  
+
+  useEffect(() => {
+      // Filter products when products, selectedType, or selectedCollection changes
+      if (products) {
+          let filtered = [...products];
+
+          if (selectedType) {
+              filtered = filtered.filter(product => product.type.toString() === selectedType);
+          }
+
+          if (selectedCollection) {
+              filtered = filtered.filter(product => product.coll.toString() === selectedCollection);
+          }
+
+          
+           // Sort by price
+      if (priceFilter === 'lowToHigh') {
+          filtered.sort((a, b) => a.price - b.price);
+      } else if (priceFilter === 'highToLow') {
+          filtered.sort((a, b) => b.price - a.price);
+      }
+      
+      // Sort by alphabet
+      if(alphabetFilter === 'aToZ') {
+        filtered.sort((a, b) => a.name.localeCompare(b.name));
+      } else if (alphabetFilter === 'zToA') {
+        filtered.sort((a, b) => b.name.localeCompare(a.name));
+      }
+
+
+          setFilteredProducts(filtered);
+      }
+  }, [products, selectedType, selectedCollection, priceFilter, alphabetFilter]);
+  
+    const handleTypeChange = (typeId: string | null) => {
+        setSelectedType(typeId);
+        filterProducts(typeId, selectedCollection);
+        
+        const selectedTypeObj = allProductTypes.find((type) => type._id === typeId) || null;
+        setProductType(
+          selectedTypeObj || {
+            name: "All Products",
+            image: "https://global.bonanzasatrangi.com/cdn/shop/collections/Category-Banner_c1b4dfc7-cd89-4eca-9c6f-4c5e0036886e.webp?v=1731470439",
+            _id: "all",
+          }
+        );
+      
+        // Gọi API để đảm bảo dữ liệu chính xác
+        fetchProductType(typeId);
+    };
+
+    const handleCollectionChange = (collId: string | null) => {
+        setSelectedCollection(collId);
+        filterProducts(selectedType, collId);
+    };
+
+    const filterProducts = (typeId: string | null, collId: string | null) => {
+        let filtered = [...products];
+        
+        if (typeId) {
+          filtered = filtered.filter(product => product.type.toString() === typeId);
+        }
+
+        if (collId) {
+          filtered = filtered.filter(product => product.coll.toString() === collId);
+        }
+
+      // Sort by price
+      if (priceFilter === 'lowToHigh') {
+          filtered.sort((a, b) => a.price - b.price);
+      } else if (priceFilter === 'highToLow') {
+          filtered.sort((a, b) => b.price - a.price);
+      }
+      
+      if(alphabetFilter === 'aToZ') {
+        filtered.sort((a, b) => a.name.localeCompare(b.name));
+      } else if (alphabetFilter === 'zToA') {
+        filtered.sort((a, b) => b.name.localeCompare(a.name));
+      }
+        
+        setFilteredProducts(filtered);
+    };
+
+
+  const handlePriceChange = (filter: 'lowToHigh' | 'highToLow' | null) => {
+      setPriceFilter(filter);
+      filterProducts(selectedType, selectedCollection)
+    };
+
+    const handleAlphabetChange = (filter: 'aToZ' | 'zToA' | null) => {
+      setAlphabetFilter(filter);
+      filterProducts(selectedType, selectedCollection)
+    };
+
 
   if (!productType) {
     return <Layout>Loading...</Layout>;
@@ -116,7 +257,7 @@ const ProductsTypePage = () => {
     <Layout>
       <div style={{ backgroundColor: "var(--background)" }}>
       <h3 className="mb-4" style={{ marginLeft: "355px" }}>
-  Home | <strong>{productType.name}</strong>
+  Home | <strong>{productType?.name || 'All Products'}</strong>
 </h3>
 
       </div>
@@ -203,11 +344,21 @@ const ProductsTypePage = () => {
   }}>PRICE</h3>
   <div className="filter-container">
     <div>
-      <input type="checkbox" id="lh" />
+        <input
+        type="checkbox"
+        id="lh"
+        checked={priceFilter === 'lowToHigh'}
+        onChange={(e) => handlePriceChange(e.target.checked ? 'lowToHigh' : null)}
+        />
       <label htmlFor="lh">LOW TO HIGH</label>
     </div>
     <div>
-      <input type="checkbox" id="hl" />
+          <input
+        type="checkbox"
+        id="hl"
+        checked={priceFilter === 'highToLow'}
+            onChange={(e) => handlePriceChange(e.target.checked ? 'highToLow' : null)}
+        />
       <label htmlFor="hl">HIGH TO LOW</label>
     </div>
   </div>
@@ -224,11 +375,21 @@ const ProductsTypePage = () => {
   }}>ALPHABET</h3>
   <div className="filter-container">
     <div>
-      <input type="checkbox" id="az" />
+        <input
+        type="checkbox"
+        id="az"
+        checked={alphabetFilter === 'aToZ'}
+            onChange={(e) => handleAlphabetChange(e.target.checked ? 'aToZ' : null)}
+        />
       <label htmlFor="az">A-Z</label>
     </div>
     <div>
-      <input type="checkbox" id="za" />
+        <input
+        type="checkbox"
+        id="za"
+        checked={alphabetFilter === 'zToA'}
+            onChange={(e) => handleAlphabetChange(e.target.checked ? 'zToA' : null)}
+        />
       <label htmlFor="za">Z-A</label>
     </div>
   </div>
@@ -261,11 +422,16 @@ const ProductsTypePage = () => {
     textUnderlineOffset: "15px", // Khoảng cách giữa chữ và gạch chân
   }}>Collections</h3>
   <div className="filter-container">
-    {allCollection.map((coll) => (
-      <div key={coll._id}>
-        <input type="checkbox" id={`coll-${coll.name}`} />
-        <label htmlFor={`coll-${coll.name}`}>{coll.name}</label>
-      </div>
+    {allCollections.map((coll) => (
+          <div key={coll._id}>
+          <input
+            type="checkbox"
+            id={`coll-${coll.name}`}
+                checked={selectedCollection === coll._id}
+                onChange={(e) => handleCollectionChange(e.target.checked ? coll._id : null)}
+            />
+            <label htmlFor={`coll-${coll.name}`}>{coll.name}</label>
+          </div>
     ))}
   </div>
 </div>
@@ -280,12 +446,19 @@ const ProductsTypePage = () => {
     textUnderlineOffset: "15px", // Khoảng cách giữa chữ và gạch chân
   }}>Type Of Clothing</h3>
   <div className="filter-container">
-      {allProductTypes.map((type) => (
+        {allProductTypes.map((type) => (
             <div key={type._id}>
-              <input type="checkbox" id={`type-${type.name}`} />
-              <label htmlFor={`type-${type.name}`}>{type.name}</label>
+                <input
+                    type="checkbox"
+                    id={`type-${type.name}`}
+                  checked={selectedType === type._id}
+                    onChange={(e) => {
+                        handleTypeChange(e.target.checked ? type._id : null);
+                    }}
+                />
+                <label htmlFor={`type-${type.name}`}>{type.name}</label>
             </div>
-          ))}
+        ))}
   </div>
 </div>
 
@@ -301,22 +474,22 @@ const ProductsTypePage = () => {
                 paddingRight: "20px",
               }}
             >
-              <img
+                {productType && <img
                 src={productType.image}
                 alt={productType.name}
                 className="rounded-md"
-              />
+              />}
             </div>
           </div>
 
           <div style={{ flex: 1, overflowY: "auto", padding: "20px" }}>
             <Row gutter={[16, 16]}>
-              {products.map((product) => (
+              {filteredProducts?.map((product) => (
                 <Col span={6} key={product._id}>
                   <ProductCard
                     product={product}
                     onClick={() => {
-                      router.push(`/producttypes/${productTypeId}/products/${product._id}`, { scroll: true });
+                      router.push(`/products/${product._id}`, { scroll: true });
                     }}
                     toggleDrawer={toggleDrawer} 
                   />
@@ -343,7 +516,6 @@ interface ProductCardProps {
 
 const ProductCard: React.FC<ProductCardProps> = ({ product, onClick, toggleDrawer }) => {
   const [isHovered, setIsHovered] = useState(false);
-  
 
 
   const addToCart = async (event: React.MouseEvent) => {
@@ -377,9 +549,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onClick, toggleDrawe
   
 
   return (
-    <motion.div
-      whileHover={{ scale: 1.05, y: -5 }} // Scale up card and add a little upward movement
-      transition={{ duration: 0.3 }} // Smooth transition
+    <motion.div  // Now correctly used as a JSX component
+      whileHover={{ scale: 1.05, y: -5 }}
+      transition={{ duration: 0.3 }}
       style={{ 
         borderRadius: "12px", 
         boxShadow: "0 6px 15px rgba(0, 0, 0, 0.1)", 
@@ -406,23 +578,23 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onClick, toggleDrawe
               src={product.images[0]}
               style={{
                 transition: "transform 0.3s ease",
-                transform: isHovered ? "scale(1.1)" : "scale(1)", // Zoom in on image
+                transform: isHovered ? "scale(1.1)" : "scale(1)",
               }}
             />
-            <motion.div
-              className="absolute bottom-0 transform -translate-x-1/2 p-2 cursor-pointer"
-              initial={{ opacity: 0, scale: 0.5 }}
-              animate={{ opacity: isHovered ? 1 : 0, scale: isHovered ? 1 : 0.5 }}
-              transition={{ duration: 0.3 }}
-              style={{ pointerEvents: isHovered ? 'auto' : 'none' }}
-            >
-              <div
-                className="bg-black rounded-md p-2 opacity-75 hover:opacity-80"
-                onClick={addToCart}
+              <motion.div
+                  className="absolute bottom-0 transform -translate-x-1/2 p-2 cursor-pointer"
+                  initial={{ opacity: 0, scale: 0.5 }}
+                  animate={{ opacity: isHovered ? 1 : 0, scale: isHovered ? 1 : 0.5 }}
+                  transition={{ duration: 0.3 }}
+                  style={{ pointerEvents: isHovered ? 'auto' : 'none' }}
               >
-                <FiShoppingCart size={20} color="white" />
-              </div>
-            </motion.div>
+                  <div
+                  className="bg-black rounded-md p-2 opacity-75 hover:opacity-80"
+                  onClick={addToCart}
+                  >
+                      <FiShoppingCart size={20} color="white" />
+                  </div>
+              </motion.div>
           </div>
         }
       >
@@ -433,9 +605,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onClick, toggleDrawe
         />
       </Card>
     </motion.div>
-
-    
   );
 };
+
 
 export default ProductsTypePage;
