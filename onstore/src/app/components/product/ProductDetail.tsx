@@ -163,7 +163,7 @@ const QuantitySelector = styled.div`
     transition: all 0.2s;
 
     &:hover {
-      background: #edf2f7;
+      background: rgb(240 240 240);
       color: black;
     }
   }
@@ -496,9 +496,9 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
           </ColorSelector>
 
           <QuantitySelector>
-            <button onClick={() => quantity > 1 && setQuantity(q => q - 1)}>-</button>
+            <button onClick={() => quantity > 1 && setQuantity(q => q - 1)} style={{backgroundColor: "#fff"}}>-</button>
             <span>{quantity}</span>
-            <button onClick={() => setQuantity(q => q + 1)}>+</button>
+            <button onClick={() => setQuantity(q => q + 1)} style={{backgroundColor: "#fff"}}>+</button>
           </QuantitySelector>
 
           <AddToCartButton>ADD TO CART</AddToCartButton>

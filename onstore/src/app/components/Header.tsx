@@ -286,7 +286,9 @@ const UserModal: React.FC<{ username: string; handleLogout: () => void; toggleUs
                     <p>Your information</p>
                 </button>
                 <button className="flex items-center space-x-2 w-full text-left">
-                    <p>Your orders</p>
+                    <Link href={'/order'}>
+                        <p>Your orders</p>
+                    </Link>
                 </button>
                 <hr className="w-full border-gray-300" />
                 <p className="text-sm italic text-gray-500 text-center">

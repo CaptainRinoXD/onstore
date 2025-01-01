@@ -224,3 +224,43 @@ export const handleAddOrderAction = async () => {
     throw error // Rethrow the error to be handled by the caller
   }  
 }
+
+export const handleGetOrderById = async () => {
+
+  const respon = await fetch('http://localhost:3002/api/orders/currentUser', {
+    method: 'GET',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+  if (!respon) {
+    return}
+
+const res = await respon.json();
+console.log("res",res)
+// revalidateTag("list-users")
+  return res;
+}
+
+export const handleUpdateOrderAction = async (data: any) => {
+  console.log('data',data)
+  const respon = await fetch(`http://localhost:3002/api/orders/${data.id}`, {
+      method: "PUT", // Thay đổi method thành POST
+      headers: {
+        "Content-Type": "application/json", // Xác định loại dữ liệu được gửi
+      },
+      body: JSON.stringify({
+          ...data 
+      }),
+    });
+    
+  if (!respon) {
+      return}
+    
+  const res = await respon.json();
+  console.log('res',res)
+
+  revalidateTag("list-order")
+  return res;
+}

@@ -67,7 +67,7 @@ exports.createOrder = async (req, res) => {
 exports.getCurrentUserOrder = async (req, res) => {
     try {
         const userId = req.user.id; // Get user ID from the verified token
-        const order = await Order.findOne({ user: userId }).populate('items.product');
+        const order = await Order.find({ user: userId }).populate('items.product').sort({ createdAt: -1 });
         if (!order) {
             return res.status(404).json({ message: 'Order not found for this user' });
         }
@@ -80,7 +80,7 @@ exports.getCurrentUserOrder = async (req, res) => {
 // Get all orders for a user
 exports.getAllUserOrders = async (req, res) => {
     try {
-        const orders = await Order.find({ user: req.user.id }).populate('items.product');
+        const orders = await Order.find().populate('items.product').populate('user');
         res.status(200).json(orders);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -89,18 +89,22 @@ exports.getAllUserOrders = async (req, res) => {
 
 // Update the order status
 exports.updateOrderStatus = async (req, res) => {
-    const { status } = req.body; // Expecting the new status in the request body
+    const { shippingStatus,paymentStatus } = req.body; // Expecting the new status in the request body
     try {
-        const order = await Order.findById(req.params.orderId);
-         if (!order || (order.user && order.user.toString() !== req.user.id)) {
-             return res.status(404).json({ message: 'Order not found or does not belong to the user' });
-        }
 
-        order.status = status; // Update status
+        const order = await Order.findById(req.params.orderId);
+        //  if (!order || (order.user && order.user.toString() !== req.user.id)) {
+        //      return res.status(404).json({ message: 'Order not found or does not belong to the user' });
+        // }
+        if (!order || !order.user) {
+            return res.status(404).json({ message: 'Order not found or does not belong to the user' });
+       }
+        order.paymentStatus = paymentStatus; // Update status
+        order.shippingStatus = shippingStatus; // Update status
         await order.save();
         res.status(200).json(order);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.log(error.message)
     }
 };
 

@@ -5,6 +5,7 @@ import Layout from "@/app/components/Layout";
 import { motion } from "framer-motion";
 import { FiShoppingCart } from "react-icons/fi";
 import { useParams, useRouter } from "next/navigation";
+import { fetchProductTypes, fetchCollections } from "@/utils/services";
 
 
 interface Product {
@@ -41,9 +42,19 @@ interface ProductType {
   createdAt?: Date;
 }
 
+interface Collection {
+  _id: string;
+  name: string;
+  images: string;
+  description: string;
+  createdAt?: Date;
+}
+
 const ProductsTypePage = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [productType, setProductType] = useState<ProductType | null>(null);
+  const [allProductTypes, setAllProductTypes] = useState<ProductType[]>([]);
+  const [allCollection, setAllCollection] = useState<Collection[]>([]);
   const { productTypeId } = useParams();
   const router = useRouter();
 
@@ -66,8 +77,29 @@ const ProductsTypePage = () => {
       setProductType(data);
     };
 
+    const loadProductTypes = async () => {
+      try {
+          const productTypes = await fetchProductTypes();
+          setAllProductTypes(productTypes);
+      } catch (error) {
+          console.error("Failed to load product types:", error);
+      }
+    };
+
+    const loadCollection = async () => {
+      try {
+          const collection = await fetchCollections();
+          setAllCollection(collection);
+      } catch (error) {
+          console.error("Failed to load collection:", error);
+      }
+    };
+
+
     fetchProducts();
     fetchProductType();
+    loadProductTypes();
+    loadCollection();
   }, [productTypeId]);
 
   if (!productType) {
@@ -221,16 +253,14 @@ const ProductsTypePage = () => {
     textDecoration: "underline",
     textDecorationThickness: "2px", // Độ dày của đường gạch chân
     textUnderlineOffset: "15px", // Khoảng cách giữa chữ và gạch chân
-  }}>FABRIC</h3>
+  }}>Collections</h3>
   <div className="filter-container">
-    <div>
-      <input type="checkbox" id="fabric-lawn" />
-      <label htmlFor="fabric-lawn">Lawn</label>
-    </div>
-    <div>
-      <input type="checkbox" id="fabric-khaddar" />
-      <label htmlFor="fabric-khaddar">Khaddar</label>
-    </div>
+    {allCollection.map((coll) => (
+      <div key={coll._id}>
+        <input type="checkbox" id={`coll-${coll.name}`} />
+        <label htmlFor={`coll-${coll.name}`}>{coll.name}</label>
+      </div>
+    ))}
   </div>
 </div>
 
@@ -242,20 +272,14 @@ const ProductsTypePage = () => {
     textDecoration: "underline",
     textDecorationThickness: "2px", // Độ dày của đường gạch chân
     textUnderlineOffset: "15px", // Khoảng cách giữa chữ và gạch chân
-  }}>Categories</h3>
+  }}>Type Of Clothing</h3>
   <div className="filter-container">
-    <div>
-      <input type="checkbox" id="category-unstiched" />
-      <label htmlFor="category-unstiched">Women Unstitched</label>
-    </div>
-    <div>
-      <input type="checkbox" id="category-printed" />
-      <label htmlFor="category-printed">Printed</label>
-    </div>
-    <div>
-      <input type="checkbox" id="category-embroidered" />
-      <label htmlFor="category-embroidered">Embroidered</label>
-    </div>
+      {allProductTypes.map((type) => (
+            <div key={type._id}>
+              <input type="checkbox" id={`type-${type.name}`} />
+              <label htmlFor={`type-${type.name}`}>{type.name}</label>
+            </div>
+          ))}
   </div>
 </div>
 
