@@ -37,7 +37,7 @@ exports.paymentController = async(req, res) => {
     var orderInfo = 'pay with MoMo';
     var partnerCode = 'MOMO';
     //var redirectUrl = 'https://webhook.site/b3088a6a-2d17-4f8d-a383-71389a6c600b';
-    var redirectUrl = 'http://localhost:3000/';
+    var redirectUrl = 'http://localhost:3000/thank';
     var ipnUrl = 'https://a1d7-2402-800-61ce-def-a571-2d31-d1f-69d1.ngrok-free.app/api/paymemtCallBack';
     var requestType = "payWithMethod";
     var amount = orderTotal;   //get from order
@@ -120,6 +120,7 @@ exports.callbackController = async(req, res) => {
          const updatedOrder =  await Order.findOneAndUpdate(
               { _id: orderId },
               { paymentStatus: 'Successful' },
+              { paymentMethod: 'MOMO'},
               { new: true }
           );
          if(!updatedOrder) {
@@ -195,7 +196,7 @@ exports.checkPaymentStatus = async(req,res) => {
         // Update payment status if the transaction was successful
         const updatedOrder =  await Order.findOneAndUpdate(
             { _id: orderId },
-            { paymentStatus: 'Successful' },
+            { paymentStatus: 'Successful', paymentMethod: 'MOMO' },
             { new: true }
         );
         console.log("Thanh toan thanh cong!");

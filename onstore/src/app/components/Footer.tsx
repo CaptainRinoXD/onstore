@@ -1,4 +1,5 @@
 // Footer.tsx
+import Link from 'next/link';
 import React from 'react';
 
 const Footer: React.FC = () => {
@@ -11,7 +12,9 @@ const Footer: React.FC = () => {
             <h4 className="text-lg font-bold mb-4 transition-all duration-300 hover:text-yellow-400">INFORMATION</h4>
             <ul>
               <li className="footer-link hover:text-yellow-400">About Us</li>
-              <li className="footer-link hover:text-yellow-400">Track Your Order</li>
+              <Link href="/order">
+                <li className="footer-link hover:text-yellow-400">Track Your Order</li>
+              </Link>
               <li className="footer-link hover:text-yellow-400">Shipping Information</li>
             </ul>
           </div>
@@ -30,8 +33,8 @@ const Footer: React.FC = () => {
           {/* CONTACT US Section */}
           <div className="footer-column">
             <h4 className="text-lg font-bold mb-4 transition-all duration-300 hover:text-yellow-400">CONTACT US</h4>
-            <p className="mb-2">Phone: +92 21 111-244-266</p>
-            <p className="mb-2">Email: orders@bonanzagt.com</p>
+            <p className="mb-2">Phone: +84 987654321</p>
+            <p className="mb-2">Email: dinhdainhan@gmail.com</p>
             <p>Customer Care: Monday to Saturday: 9am to 8pm</p>
           </div>
         </div>

@@ -5,6 +5,7 @@ import Image from "next/image";
 import localFont from "next/font/local";
 import Layout from "./components/Layout";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 
 interface Product {
@@ -128,7 +129,7 @@ export default function Home() {
 
   const router = useRouter();
   const hanldeReToDetail = (id: string, type: string) => {
-    router.push(`/producttypes/${type}/products/${id}`);
+    router.push(`/products/${id}`);
   }
   const handleAddToCart = async (productId: string, price: number) => {
     try {
@@ -212,7 +213,9 @@ export default function Home() {
         <img src="https://global.bonanzasatrangi.com/cdn/shop/files/Tile-Banner-1800-x1800_a20b3f6d-ce63-4e9c-ac3b-d51cb8f754a3_1000x.jpg?v=1730972167" alt="Winter Unstitched" />
         <div className="category-overlay">
           <h3>WINTER UNSTITCHED</h3>
-          <button className="shop-now-btn">SHOP NOW</button>
+          <Link href="/producttypes?collection=6773f359dff9956088b6a892">
+            <button className="shop-now-btn">SHOP NOW</button>
+          </Link>
         </div>
       </div>
     </div>
@@ -222,7 +225,9 @@ export default function Home() {
         <img src="https://global.bonanzasatrangi.com/cdn/shop/files/Tile-Banner-WomensToReady-600-x600_400x.jpg?v=1729627405" alt="Ready to Wear" />
         <div className="category-overlay">
           <h3>READY TO WEAR</h3>
-          <button className="shop-now-btn">SHOP NOW</button>
+          <Link href="http://localhost:3000/producttypes?collection=67619aeff042177ed710cbef">
+            <button className="shop-now-btn">SHOP NOW</button>
+          </Link>        
         </div>
       </div>
     </div>
@@ -237,35 +242,9 @@ export default function Home() {
       </div>
     </div>
     
-    <div className="category-item">
-      <div className="category-image-container">
-        <img src="https://global.bonanzasatrangi.com/cdn/shop/files/Sweaters_tile_400x.jpg?v=1729627570" alt="Men's Stitched" />
-        <div className="category-overlay">
-          <h3>MEN'S STITCHED</h3>
-          <button className="shop-now-btn">SHOP NOW</button>
-        </div>
-      </div>
-    </div>
-    
-    <div className="category-item">
-      <div className="category-image-container">
-        <img src="https://global.bonanzasatrangi.com/cdn/shop/files/Sweaters_tile_400x.jpg?v=1729627570" alt="Sweaters" />
-        <div className="category-overlay">
-          <h3>SWEATERS</h3>
-          <button className="shop-now-btn">SHOP NOW</button>
-        </div>
-      </div>
-    </div>
 
-    <div className="category-item">
-      <div className="category-image-container">
-        <img src="https://global.bonanzasatrangi.com/cdn/shop/files/Sweaters_tile_400x.jpg?v=1729627570" alt="Sweaters" />
-        <div className="category-overlay">
-          <h3>SWEATERS</h3>
-          <button className="shop-now-btn">SHOP NOW</button>
-        </div>
-      </div>
-    </div>
+
+  
   </div>
 </section>
 

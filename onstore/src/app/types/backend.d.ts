@@ -36,6 +36,9 @@ interface IOrder {
     "total": number;
     "address": string;
     "phone": string;
+    "shippingStatus": string;
+    "paymentStatus": string;
+    "paymentMethod": string;
     "pay": string; 
     "createdAt": Date;
     "detail": IDetailOrder[];
@@ -45,6 +48,7 @@ interface IOrder {
 interface IDetailOrder {
     "productId": string;
     "product": IProduct;
+    "name": string;
     "quantity": number;
     "price": number;
   "_id": string;

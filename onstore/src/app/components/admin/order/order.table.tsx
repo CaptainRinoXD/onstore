@@ -7,6 +7,7 @@ import { DeleteTwoTone, EditTwoTone } from "@ant-design/icons";
 import { useState } from "react";
 import OrderUpdate from "./order.update";
 import { useRouter } from "next/navigation";
+import moment from 'moment';
 
 interface IProps {
     orders: any;
@@ -43,34 +44,65 @@ const OrderTable = (props: IProps) => {
 
     const columns = [
         {
-            title: "STT",
-            render: (_: any, record: any, index: any) => {
-                return <>{index + 1}</>;
-            },
+          title: "STT",
+          render: (_: any, record: any, index: any) => {
+            return <>{index + 1}</>;
+          },
         },
+        {
+            title: "Create At",
+            dataIndex: "createdAt",
+            render: (createdAt: string) => {
+              return <>{moment(createdAt).format('DD/MM/YYYY HH:mm')}</>;
+            },
+          },
         {
             title: "User",
             dataIndex: "user",
             render: (user: any) => {
-                return <>{user.username}</>;
+              return <>{user && user.username ? user.username : "Guest"}</>;
             },
         },
         {
-            title: "Total Price",
-            dataIndex: "total",
-            render: (price: number) => {
-                return <>{formatPrice(price)}</>;
-            },
+          title: "Total Price",
+          dataIndex: "total",
+          render: (price: number) => {
+            return <>{formatPrice(price)}</>;
+          },
         },
         {
-            title: "Shipping Status",
-            dataIndex: "shippingStatus",
+          title: "Shipping Status",
+          dataIndex: "shippingStatus",
         },
         {
             title: "Payment Status",
             dataIndex: "paymentStatus",
-        },
-        {
+            render: (paymentStatus: string) => {
+              let style = {
+                color: "inherit",
+                fontWeight: "normal",
+              };
+        
+              if (paymentStatus === "Successful") {
+                style = {
+                  color: "green",
+                  fontWeight: "bold",
+                };
+              } else if (paymentStatus === "Failed") {
+                style = {
+                  color: "red",
+                  fontWeight: "bold",
+                };
+              }
+        
+              return (
+                <span style={style}>
+                  {paymentStatus}
+                </span>
+              );
+            },
+          },
+          {
             title: "Actions",
             render: (text: any, record: any, index: any) => {
                 return (

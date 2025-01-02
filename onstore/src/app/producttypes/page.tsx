@@ -534,7 +534,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onClick, toggleDrawe
         throw new Error('Failed to add product to cart');
       }
   
-      message.success(`${product.name} added to cart!`);
+      //message.success(`${product.name} added to cart!`);
       toggleDrawer(true)();
     } catch (error: unknown) {
       if (error instanceof Error) {

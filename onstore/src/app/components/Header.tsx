@@ -180,7 +180,7 @@ const Header: React.FC<HeaderProps> = ({
                         Homepage
                     </MenuItemH>
                     <li className="relative group transition-all hover-to-show-link" onMouseEnter={fetchProductTypes}>
-                        <a href="#" className="cursor-pointer hover:text-blue-300 active:text-blue-500 transition-all duration-300">
+                        <a href="/producttypes" className="cursor-pointer hover:text-blue-300 active:text-blue-500 transition-all duration-300">
                             <strong>Shop</strong>
                             <span className="absolute bottom-0 left-0 w-0 h-px bg-blue-300 transition-all group-hover:w-full active:w-full"></span>
                         </a>
@@ -192,7 +192,7 @@ const Header: React.FC<HeaderProps> = ({
                                 setNewestCollections(collections);
                             }
                         }}>
-                        <a href="#" className="cursor-pointer hover:text-blue-300 active:text-blue-500 transition-all duration-300">
+                        <a href="/producttypes" className="cursor-pointer hover:text-blue-300 active:text-blue-500 transition-all duration-300">
                             <strong>New Arrivals</strong>
                             <span className="absolute bottom-0 left-0 w-0 h-px bg-blue-300 transition-all group-hover:w-full active:w-full"></span>
                         </a>
@@ -219,7 +219,7 @@ const Header: React.FC<HeaderProps> = ({
                             Homepage
                         </MenuItemH>
                         <li className="relative group transition-all hover-to-show-link" onMouseEnter={fetchProductTypes}>
-                            <a href="#" className="cursor-pointer hover:text-blue-300 active:text-blue-500 transition-all duration-300">
+                            <a href="/producttypes" className="cursor-pointer hover:text-blue-300 active:text-blue-500 transition-all duration-300">
                                 <strong>Shop</strong>
                                 <span className="absolute bottom-0 left-0 w-0 h-px bg-blue-300 transition-all group-hover:w-full active:w-full"></span>
                             </a>

@@ -61,7 +61,7 @@ const addItemToCart = async (req, res) => {
              cart.total += existingItem.quantity * product.price
         } else {
              // Add new item to the cart, including the price
-             cart.items.push({ product: productId, quantity, price: product.price });
+             cart.items.push({ product: productId, name: product.name, quantity, price: product.price });
               cart.total += product.price * quantity;
         }
 

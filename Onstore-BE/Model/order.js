@@ -17,6 +17,10 @@ const orderSchema = new mongoose.Schema({
       required: true,
       ref: 'Product',
     },
+    name: {
+      type: String,
+      required: true,
+    },
     quantity: {
       type: Number,
       required: true,
@@ -46,8 +50,9 @@ const orderSchema = new mongoose.Schema({
   },
   paymentMethod: {
     type: String,
-    enum: ['Credit Card', 'PayPal', 'Bank Transfer', 'Cash on Delivery', 'MOMO'],
+    enum: ['unknow','Credit Card', 'PayPal', 'Bank Transfer', 'Cash on Delivery', 'MOMO'],
     required: false,
+    default: 'Cash on Delivery'
   },
   paymentStatus: {
     type: String,

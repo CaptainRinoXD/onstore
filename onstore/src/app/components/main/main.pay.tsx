@@ -150,7 +150,9 @@ const MainPay = () => {
     try {
       const data = await res.json();
       console.log("orderID đã được tạo: " + data);
+      alert("Đặt hàng thành công");
       setOrder(data._id);
+      router.push("/");
     } catch (error) {
       console.error("Error fetching data:", error);
     }

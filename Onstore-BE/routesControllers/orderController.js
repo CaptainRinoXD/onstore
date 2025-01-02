@@ -16,7 +16,7 @@ exports.createOrder = async (req, res) => {
         } else if (req.guestId) {
              const guestId = req.guestId;
              cart = await Cart.findOne({ guestID: guestId });
-             orderData.guestID = guestId;
+             orderData.guestId = guestId;
          } else {
            return res.status(400).json({ message: 'User or guest ID is required' });
         }
@@ -25,6 +25,7 @@ exports.createOrder = async (req, res) => {
             ...orderData,
             items: cart.items.map(item => ({
                 product: item.product,
+                name: item.name,
                 quantity: item.quantity,
                 price: item.price,
             })),
@@ -64,14 +65,29 @@ exports.createOrder = async (req, res) => {
 // };
 
 // Get order details
+// Get current user's orders or guest's orders
 exports.getCurrentUserOrder = async (req, res) => {
     try {
-        const userId = req.user.id; // Get user ID from the verified token
-        const order = await Order.find({ user: userId }).populate('items.product').sort({ createdAt: -1 });
-        if (!order) {
-            return res.status(404).json({ message: 'Order not found for this user' });
+        let orders;
+        
+        // If the user is logged in
+        if (req.user) {
+            const userId = req.user.id; // Get user ID from the verified token
+            orders = await Order.find({ user: userId }).populate('items.product').sort({ createdAt: -1 });
+        } 
+        // If the user is a guest
+        else if (req.guestId) { 
+            const guestId = req.guestId; // Get guestId from the request
+            orders = await Order.find({ guestId }).populate('items.product').sort({ createdAt: -1 });
+        } else {
+            //return res.status(400).json({ message: 'User or guest ID is required' });
         }
-        res.status(200).json(order);
+
+        if (!orders || orders.length === 0) {
+            return res.status(404).json({ message: 'No orders found for this user or guest' });
+        }
+        
+        res.status(200).json(orders);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -80,7 +96,12 @@ exports.getCurrentUserOrder = async (req, res) => {
 // Get all orders for a user
 exports.getAllUserOrders = async (req, res) => {
     try {
-        const orders = await Order.find().populate('items.product').populate('user');
+        // Find orders, populate necessary fields, and sort by createdAt in descending order
+        const orders = await Order.find()
+            .populate('items.product')
+            .populate('user')
+            .sort({ createdAt: -1 }); // Newest first
+        
         res.status(200).json(orders);
     } catch (error) {
         res.status(500).json({ error: error.message });
