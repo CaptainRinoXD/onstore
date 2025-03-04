@@ -1,12 +1,17 @@
 import type { NextConfig } from "next";
 
-const nextConfig: NextConfig = {
+const nextConfig = {
   /* config options here */
   reactStrictMode: true,
   images: {
-    remotePatterns: [{
-      hostname: 'global.bonanzasatrangi.com',
-    }]
+    remotePatterns: [
+      {
+        hostname: "global.bonanzasatrangi.com",
+      },
+      {
+        hostname: "assets.adidas.com",
+      },
+    ],
   },
 };
 
