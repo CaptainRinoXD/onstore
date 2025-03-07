@@ -94,7 +94,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen pt-4 w-full ">
+    <div className="flex flex-col min-h-screen w-full ">
       <StoreProvider>
       <Header
         isUserLoggedIn={isUserLoggedIn}

@@ -165,7 +165,7 @@ export default function Home() {
       <div
         className={`${geistSans.variable} ${geistMono.variable} flex flex-col `}
       >
-        <main className="flex-grow flex flex-col items-center text-center mt-2">
+        <main className="flex-grow flex flex-col items-center text-center">
           {collections.length > 0 && (
             <div className="relative w-full">
               <div
