@@ -10,6 +10,10 @@ const reviewRoutes = require('./routes/reviewRouters');
 const collectionRoutes = require('./routes/collectionRouters');
 const cartRoutes = require('./routes/cartRouters');
 const paymentRouters = require('./routes/paymentRouters');
+const imageRoutes = require("./routes/imageRouters");
+const fileUpload = require("express-fileupload");
+const path = require("path");
+
 
 
 const app = express();
@@ -17,6 +21,9 @@ const PORT = process.env.PORT || 3002;
 
 
 // Middleware
+app.use(fileUpload());
+app.use(express.json()); // For parsing application/json
+app.use(express.urlencoded({ extended: true })); // For parsing application/x-www-form-urlencoded
 app.use(express.json()); // For parsing application/json
 app.use(express.urlencoded({ extended: true })); // For parsing application/x-www-form-urlencoded 
 app.use(cookieParser()); // For parsing cookies
@@ -34,6 +41,8 @@ app.use(reviewRoutes);
 app.use(orderRoutes);
 app.use(productTypeRouters);
 app.use(paymentRouters);
+app.use(imageRoutes);
+app.use("/images", express.static(path.join(__dirname, "images")));
 
 
 

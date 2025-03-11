@@ -14,6 +14,9 @@ const nextConfig = {
       {
         hostname: "assets.adidas.com",
       },
+      {
+        hostname: "localhost"
+      }
     ],
   },
 };

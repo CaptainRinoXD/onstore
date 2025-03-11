@@ -24,8 +24,9 @@ export const handleCaculateStripe = () => {
   return totalPrice;
 };
 
-export const formatPrice = (price: number) => {
-  const formattedNumber = price.toLocaleString("vi-VN");
+export const formatPrice = (price: number | undefined) => {
+  const validPrice = price !== undefined ? price : 0; // Use 0 as default
+  const formattedNumber = validPrice.toLocaleString("vi-VN");
   return formattedNumber;
 };
 

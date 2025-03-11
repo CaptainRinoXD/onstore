@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import MainDrawerList from "@/app/components/main/main.drawerlist";
 import React from "react";
-
+import path from "path";
 
 interface Product {
   _id: string;
@@ -100,11 +100,13 @@ export default function Home() {
   }, []);
 
   const handleNextBanner = () => {
-    setFade(true);  // Start fade animation
+    setFade(true); // Start fade animation
     setTimeout(() => {
-      setCurrentBannerIndex((prevIndex) => (prevIndex + 1) % collections.length);
-      setFade(false);  // Reset fade after the image changes
-    }, 180);  // Adjust timeout to match the CSS transition duration
+      setCurrentBannerIndex(
+        (prevIndex) => (prevIndex + 1) % collections.length
+      );
+      setFade(false); // Reset fade after the image changes
+    }, 180); // Adjust timeout to match the CSS transition duration
   };
 
   const handlePreviousBanner = () => {
@@ -119,46 +121,58 @@ export default function Home() {
 
   const handleNext = () => {
     // Move to the next product but keep within bounds
-    setCurrentIndex((prevIndex) => 
-      (prevIndex + 1) % products.length
-    );
+    setCurrentIndex((prevIndex) => (prevIndex + 1) % products.length);
   };
 
   const handlePrevious = () => {
     // Move to the previous product but keep within bounds
-    setCurrentIndex((prevIndex) => 
-      (prevIndex - 1 + products.length) % products.length
+    setCurrentIndex(
+      (prevIndex) => (prevIndex - 1 + products.length) % products.length
     );
   };
-  
+
   const maxIndex = products.length - visibleCount; // Total number of allowed presses
 
   const router = useRouter();
   const hanldeReToDetail = (id: string, type: string) => {
     router.push(`/products/${id}`);
-  }
+  };
   const handleAddToCart = async (productId: string, price: number) => {
     try {
-      const response = await fetch(`http://localhost:3002/api/carts/cartId/items`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ productId: productId, quantity: 1, price: price }), // Assuming 1 is the quantity
-      });
+      const response = await fetch(
+        `http://localhost:3002/api/carts/cartId/items`,
+        {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            productId: productId,
+            quantity: 1,
+            price: price,
+          }), // Assuming 1 is the quantity
+        }
+      );
 
       if (!response.ok) {
-        throw new Error('Failed to add product to cart');
+        throw new Error("Failed to add product to cart");
       }
       toggleDrawer(true)();
 
       //message.success(`${product.name} added to cart!`); // Show success message
     } catch (error) {
       //message.error(error.message || 'An error occurred while adding to cart');
-        console.error("Error adding to cart:", error);
+      console.error("Error adding to cart:", error);
     }
   };
+
+  const getImageURL = (imageName: string) => {
+    const baseName = path.parse(imageName).name; // Get the filename without extension
+    const url = `http://localhost:3002/api/images/${baseName}`;
+    return url;
+  };
+
   return (
     <Layout>
       <MainDrawerList toggleDrawer={toggleDrawer} open={open} />
@@ -177,7 +191,7 @@ export default function Home() {
                 <div className="image-container relative w-full h-[500px]">
                   <Image
                     src={
-                      collections[currentBannerIndex].images ||
+                      getImageURL(collections[currentBannerIndex].images) ||
                       "/placeholder.png"
                     }
                     alt={collections[currentBannerIndex].name}
@@ -400,7 +414,9 @@ export default function Home() {
                     <div className="relative p-4 box-border w-80 category-item">
                       <div className="category-image-container">
                         <Image
-                          src={product.images[0] || "/placeholder.png"}
+                          src={
+                            getImageURL(product.images[0]) || "/placeholder.png"
+                          }
                           alt={product.name}
                           width={300}
                           height={400}

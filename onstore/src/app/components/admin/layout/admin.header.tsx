@@ -1,5 +1,6 @@
 "use client";
 import { MenuFoldOutlined, MenuUnfoldOutlined } from "@ant-design/icons";
+import "@ant-design/v5-patch-for-react-19";
 import { Button, Layout } from "antd";
 import { useContext } from "react";
 import { DownOutlined, SmileOutlined } from "@ant-design/icons";

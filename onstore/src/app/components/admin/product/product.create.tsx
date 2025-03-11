@@ -10,8 +10,14 @@ import {
   Select,
   Button,
   InputNumber,
+  Upload,
 } from "antd";
 import { useEffect, useState } from "react";
+import {
+  RcFile,
+  UploadFile,
+  UploadChangeParam,
+} from "antd/es/upload/interface";
 
 interface IProps {
   isCreateModalOpen: boolean;
@@ -30,46 +36,86 @@ const ProductCreate = (props: IProps) => {
   const [listColl, setlistColl] = useState([]);
   const [listType, setlistType] = useState([]);
   const [sizeStocks, setSizeStocks] = useState<SizeStock[]>([]);
-    const [images, setImages] = useState<string[]>([]);
+  const [fileList, setFileList] = useState<UploadFile[]>([]); // Use UploadFile[ type
 
   const handleCloseCreateModal = () => {
     form.resetFields();
     setIsCreateModalOpen(false);
     setSizeStocks([]);
-      setImages([]);
+    setFileList([]);
   };
 
   const onFinish = async (values: any) => {
-    const res = await handleCreateProductAction({
-      ...values,
-        images: images,
-      sizeStock: sizeStocks,
-    });
-    if (res) {
+    try {
+      // 1. Create the product first (without images)
+      const productResult = await handleCreateProductAction({
+        ...values,
+        images: [], // Initially no images
+        sizeStock: sizeStocks,
+      });
+
+      if (!productResult || !productResult._id) {
+        notification.error({
+          message: "Product creation failed",
+          description: "Failed to create the product.",
+        });
+        return;
+      }
+
+      const productId = productResult._id; // Get the product ID
+
+      // 2. Upload the image using the product ID
+      const formData = new FormData();
+      fileList.forEach((file) => {
+        formData.append("image", file.originFileObj as any, file.name);
+      });
+      formData.append("productId", productId); // Use the correct productId
+
+      const uploadResponse = await fetch(
+        "http://localhost:3002/api/images/upload",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      if (!uploadResponse.ok) {
+        const errorData = await uploadResponse.json();
+        throw new Error(errorData.message || "Image upload failed");
+      }
+
+      const uploadResult = await uploadResponse.json();
+      console.log("Image upload successful:", uploadResult);
+
+      // 3. Update the product with the image name
+      // Assuming you have an API endpoint to update the product
+      const updateResponse = await fetch(
+        `http://localhost:3002/api/products/${productId}`, // Replace with your update endpoint
+        {
+          method: "PUT", // Or PATCH
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ images: [uploadResult.imageName] }),
+        }
+      );
+
+      if (!updateResponse.ok) {
+        const errorData = await updateResponse.json();
+        throw new Error(
+          errorData.message || "Failed to update product with image"
+        );
+      }
+
       handleCloseCreateModal();
       message.success("Create succeed!");
-    } else {
+    } catch (error: any) {
       notification.error({
-        message: "Create error",
-        description: res?.message,
+        message: "Error",
+        description: error.message,
       });
     }
   };
-
-    const handleAddImage = () => {
-        setImages([...images, ""]); // Add an empty string to the images array
-    };
-
-
-    const handleImageChange = (index: number, value: string) => {
-        const newImages = [...images];
-        newImages[index] = value;
-        setImages(newImages);
-    };
-    const handleRemoveImage = (index: number) => {
-        const newImages = images.filter((_, i) => i !== index);
-        setImages(newImages);
-    };
 
   const handleGetColl = async () => {
     const respon = await fetch(`http://localhost:3002/api/collections`, {
@@ -149,6 +195,30 @@ const ProductCreate = (props: IProps) => {
     setSizeStocks(newSizeStocks);
   };
 
+  const handleUploadChange = ({
+    fileList: newFileList,
+  }: UploadChangeParam<UploadFile>) => {
+    setFileList(newFileList);
+  };
+
+  const uploadProps = {
+    beforeUpload: (file: RcFile) => {
+      console.log("beforeUpload file: ", file);
+      return true; // Return false to prevent default upload
+    },
+    onChange: handleUploadChange,
+    multiple: true,
+    fileList: fileList,
+    onRemove: (file: UploadFile) => {
+      setFileList((prevFileList) => {
+        const index = prevFileList.indexOf(file);
+        const newFileList = prevFileList.slice();
+        newFileList.splice(index, 1);
+        return newFileList;
+      });
+    },
+  };
+
   return (
     <Modal
       title="Add New Product"
@@ -158,7 +228,13 @@ const ProductCreate = (props: IProps) => {
       maskClosable={false}
       width={800}
     >
-      <Form name="basic" onFinish={onFinish} layout="vertical" form={form}>
+      <Form
+        name="basic"
+        onFinish={onFinish}
+        layout="vertical"
+        form={form}
+        encType="multipart/form-data"
+      >
         <Row gutter={[15, 15]}>
           <Col span={8}>
             <Form.Item
@@ -238,33 +314,13 @@ const ProductCreate = (props: IProps) => {
               <Input />
             </Form.Item>
           </Col>
-            <Col span={16}>
-                <Form.Item label="Images">
-                    {images.map((image, index) => (
-                        <Row key={index} gutter={[8, 8]} style={{ marginBottom: 10 }}>
-                            <Col span={20}>
-                                <Input
-                                    placeholder="Image URL"
-                                    value={image}
-                                    onChange={(e) => handleImageChange(index, e.target.value)}
-                                />
-                            </Col>
-                            <Col span={4}>
-                                <Button
-                                    type="dashed"
-                                    danger
-                                    onClick={() => handleRemoveImage(index)}
-                                >
-                                    Remove
-                                </Button>
-                            </Col>
-                        </Row>
-                    ))}
-                    <Button type="dashed" onClick={handleAddImage}>
-                        Add Image
-                    </Button>
-                </Form.Item>
-            </Col>
+          <Col span={16}>
+            <Form.Item label="Images">
+              <Upload {...uploadProps}>
+                <Button icon={null}>Select Files</Button>
+              </Upload>
+            </Form.Item>
+          </Col>
         </Row>
         <Row gutter={[15, 15]}>
           <Col span={8}>

@@ -16,7 +16,7 @@ import {
     UploadProps,
 } from "antd";
 import { useEffect, useState } from "react";
-
+ 
 interface IProps {
   isUpdateModalOpen: boolean;
   setIsUpdateModalOpen: (v: boolean) => void;

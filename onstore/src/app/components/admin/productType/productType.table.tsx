@@ -5,6 +5,7 @@ import {
 } from "@/utils/actions";
 import { DeleteTwoTone, EditTwoTone } from "@ant-design/icons";
 import { Button, Image, Popconfirm, Table, Tag } from "antd"; 
+import "@ant-design/v5-patch-for-react-19";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import UserCreate from "./productType.create";

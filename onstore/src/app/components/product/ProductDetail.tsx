@@ -1,9 +1,10 @@
-'use client';
-import { useState } from 'react';
-import styled from 'styled-components';
-import { motion, AnimatePresence } from 'framer-motion';
-import { FaHeart, FaShareAlt } from 'react-icons/fa';
-import Layout from '@/app/components/Layout'; // Import Layout
+"use client";
+import { useState } from "react";
+import styled from "styled-components";
+import { motion, AnimatePresence } from "framer-motion";
+import { FaHeart, FaShareAlt } from "react-icons/fa";
+import Layout from "@/app/components/Layout"; // Import Layout
+import path from "path";
 
 // Định nghĩa kiểu cho ProductDetailProps
 interface ProductDetailProps {
@@ -36,16 +37,16 @@ const ThumbnailContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 10px;
-  
+
   img {
     width: 100%;
     border-radius: 4px;
     cursor: pointer;
     transition: all 0.3s ease;
-    
+
     &:hover {
       transform: scale(1.05);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
   }
 `;
@@ -56,7 +57,7 @@ const MainImage = styled.div`
     height: auto;
     border-radius: 8px;
     transition: transform 0.3s ease;
-    
+
     &:hover {
       transform: scale(1.02);
     }
@@ -99,7 +100,7 @@ const ProductInfo = styled.div`
 
 const ColorSelector = styled.div`
   margin: 20px 0;
-  
+
   .color-status {
     font-size: 16px;
     color: #38a169; /* Màu xanh lá cây */
@@ -204,9 +205,9 @@ const RelatedProductsHeader = styled.h2`
   margin-bottom: 30px;
   font-size: 28px;
   position: relative;
-  
+
   &:after {
-    content: '';
+    content: "";
     position: absolute;
     bottom: -10px;
     left: 50%;
@@ -232,25 +233,25 @@ const ProductsWrapper = styled(motion.div)`
 const ProductCard = styled(motion.div)`
   flex: 0 0 calc(25% - 15px);
   position: relative;
-  
+
   .image-container {
     position: relative;
     overflow: hidden;
     border-radius: 8px;
-    
+
     img {
       width: 100%;
       height: auto;
       transition: transform 0.3s ease;
     }
-    
+
     .overlay {
       position: absolute;
       top: 0;
       left: 0;
       right: 0;
       bottom: 0;
-      background: rgba(0,0,0,0.2);
+      background: rgba(0, 0, 0, 0.2);
       opacity: 0;
       transition: opacity 0.3s ease;
       display: flex;
@@ -258,7 +259,7 @@ const ProductCard = styled(motion.div)`
       justify-content: center;
       align-items: center;
     }
-    
+
     .action-button {
       background: white;
       border-radius: 50%;
@@ -270,7 +271,7 @@ const ProductCard = styled(motion.div)`
       cursor: pointer;
       transform: translateY(20px);
       transition: all 0.3s ease;
-      
+
       &:hover {
         background: #e53e3e;
         color: white;
@@ -283,11 +284,11 @@ const ProductCard = styled(motion.div)`
       img {
         transform: scale(1.05);
       }
-      
+
       .overlay {
         opacity: 1;
       }
-      
+
       .action-button {
         transform: translateY(0);
       }
@@ -298,23 +299,23 @@ const ProductCard = styled(motion.div)`
 const ProductInfoCard = styled.div`
   padding: 15px 0;
   text-align: center;
-  
+
   h3 {
     margin: 0;
     font-size: 16px;
     margin-bottom: 8px;
   }
-  
+
   .price {
     display: flex;
     justify-content: center;
     gap: 10px;
-    
+
     .current {
       color: #e53e3e;
       font-weight: bold;
     }
-    
+
     .original {
       text-decoration: line-through;
       color: #718096;
@@ -331,21 +332,21 @@ const NavigationButton = styled.button`
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   cursor: pointer;
   z-index: 2;
   transition: all 0.3s ease;
-  
+
   &:hover {
     background: #e53e3e;
     color: black;
   }
-  
+
   &.prev {
-  padding-bottom: 3px;
+    padding-bottom: 3px;
     left: 0px;
   }
-  
+
   &.next {
     padding-bottom: 3px;
 
@@ -356,14 +357,14 @@ const NavigationButton = styled.button`
 // Related Products Component
 const RelatedProducts = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
-  
+
   const relatedProducts = [
     {
       id: 1,
       name: "BENNY FIDORE - 3 PC",
       price: 26,
       originalPrice: 32,
-      image: "/path-to-image-1.jpg"
+      image: "/path-to-image-1.jpg",
     },
     // Add more products...
   ];
@@ -371,28 +372,28 @@ const RelatedProducts = () => {
   const slideVariants = {
     enter: (direction: number) => ({
       x: direction > 0 ? 1000 : -1000,
-      opacity: 0
+      opacity: 0,
     }),
     center: {
       zIndex: 1,
       x: 0,
-      opacity: 1
+      opacity: 1,
     },
     exit: (direction: number) => ({
       zIndex: 0,
       x: direction < 0 ? 1000 : -1000,
-      opacity: 0
-    })
+      opacity: 0,
+    }),
   };
 
   const handleNext = () => {
-    setCurrentIndex((prev) => 
+    setCurrentIndex((prev) =>
       prev === relatedProducts.length - 4 ? 0 : prev + 1
     );
   };
 
   const handlePrev = () => {
-    setCurrentIndex((prev) => 
+    setCurrentIndex((prev) =>
       prev === 0 ? relatedProducts.length - 4 : prev - 1
     );
   };
@@ -407,9 +408,9 @@ const RelatedProducts = () => {
         <NavigationButton className="next" onClick={handleNext}>
           →
         </NavigationButton>
-        
+
         <ProductsWrapper
-          animate={{ x: -currentIndex * (100 / 4 + 20) + '%' }}
+          animate={{ x: -currentIndex * (100 / 4 + 20) + "%" }}
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
         >
           {relatedProducts.map((product) => (
@@ -417,14 +418,14 @@ const RelatedProducts = () => {
               <div className="image-container">
                 <img src={product.image} alt={product.name} />
                 <div className="overlay">
-                  <motion.div 
+                  <motion.div
                     className="action-button"
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.95 }}
                   >
                     <FaHeart />
                   </motion.div>
-                  <motion.div 
+                  <motion.div
                     className="action-button"
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.95 }}
@@ -453,6 +454,13 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
   const [quantity, setQuantity] = useState(1);
   const [showDetails, setShowDetails] = useState(false);
 
+  const getImageURL = (imageName: string) => {
+    const baseName = path.parse(imageName).name; // Get the filename without extension
+    const url = `http://localhost:3002/api/images/${baseName}`;
+    console.log("getImageURL called with:", imageName, "URL:", url); // Add this line
+    return url;
+  };
+  
   return (
     <Layout>
       <ProductDetailContainer
@@ -461,23 +469,25 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
         transition={{ duration: 0.5 }}
       >
         <ThumbnailContainer>
-          {product.images.map((image: string, index: number) => (
+          {product.images.map((imageName: string, index: number) => (
             <img
               key={index}
-              src={image}
+              src={getImageURL(imageName)}
               alt={`Product ${index + 1}`}
-              onClick={() => setSelectedImage(image)}
+              onClick={() => setSelectedImage(imageName)}
             />
           ))}
         </ThumbnailContainer>
-        
+
         <MainImage>
-          <img src={selectedImage} alt={product.name} />
+          {selectedImage && (
+            <img src={getImageURL(selectedImage)} alt={product.name} />
+          )}
         </MainImage>
 
         <ProductInfo>
           <h1>{product.name}</h1>
-          
+
           <div className="price-section">
             <span className="current-price">${product.price}</span>
             <span className="original-price">${product.originalPrice}</span>
@@ -488,28 +498,40 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
             <div className="color-status">In Stock</div>
             <div>COLOR: {product.color}</div>
             <div className="color-options">
-              <div 
-                className={`color-option ${product.color === 'L-GREEN' ? 'selected' : ''}`}
-                style={{ backgroundColor: '#90EE90' }}
+              <div
+                className={`color-option ${
+                  product.color === "L-GREEN" ? "selected" : ""
+                }`}
+                style={{ backgroundColor: "#90EE90" }}
               />
             </div>
           </ColorSelector>
 
           <QuantitySelector>
-            <button onClick={() => quantity > 1 && setQuantity(q => q - 1)} style={{backgroundColor: "#fff"}}>-</button>
+            <button
+              onClick={() => quantity > 1 && setQuantity((q) => q - 1)}
+              style={{ backgroundColor: "#fff" }}
+            >
+              -
+            </button>
             <span>{quantity}</span>
-            <button onClick={() => setQuantity(q => q + 1)} style={{backgroundColor: "#fff"}}>+</button>
+            <button
+              onClick={() => setQuantity((q) => q + 1)}
+              style={{ backgroundColor: "#fff" }}
+            >
+              +
+            </button>
           </QuantitySelector>
 
           <AddToCartButton>ADD TO CART</AddToCartButton>
 
           <ProductDetails>
-            <div 
+            <div
               className="details-header"
               onClick={() => setShowDetails(!showDetails)}
             >
               <span>PRODUCT DETAILS</span>
-              <span>{showDetails ? '−' : '+'}</span>
+              <span>{showDetails ? "−" : "+"}</span>
             </div>
 
             <AnimatePresence>
@@ -518,12 +540,18 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
                   className="details-content"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 20 }}  /* Thêm hiệu ứng khi ẩn */
+                  exit={{ opacity: 0, y: 20 }} /* Thêm hiệu ứng khi ẩn */
                   transition={{ duration: 0.5 }}
                 >
-                  <p><strong>Shirt:</strong> {product.details.shirt}</p>
-                  <p><strong>Dupatta:</strong> {product.details.dupatta}</p>
-                  <p><strong>Trouser:</strong> {product.details.trouser}</p>
+                  <p>
+                    <strong>Shirt:</strong> {product.details.shirt}
+                  </p>
+                  <p>
+                    <strong>Dupatta:</strong> {product.details.dupatta}
+                  </p>
+                  <p>
+                    <strong>Trouser:</strong> {product.details.trouser}
+                  </p>
                 </motion.div>
               )}
             </AnimatePresence>
