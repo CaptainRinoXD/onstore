@@ -67,7 +67,7 @@ const UserUpdate = (props: IProps) => {
         : [];
       setFileList(initialFileList);
     }
-  }, [dataUpdate]);
+  }, [dataUpdate, form]); // Add form to dependency array
 
   const handleCloseUpdateModal = () => {
     form.resetFields();
@@ -80,71 +80,50 @@ const UserUpdate = (props: IProps) => {
     try {
       const productId = dataUpdate._id;
 
-      // Array to hold promises for all image uploads
-      const uploadPromises: Promise<any>[] = [];
-      const newFiles: UploadFile[] = [];
-
-      // Filter for all new images.
-      fileList.forEach((file) => {
+      // 1. Upload new images
+      let newImageNames: string[] = [];
+      for (const file of fileList) {
         if (file.originFileObj) {
-          newFiles.push(file);
-        }
-      });
+          const formData = new FormData();
+          formData.append("image", file.originFileObj as any, file.name);
+          formData.append("productId", productId);
 
-      // Function to upload a single image
-      const uploadImage = async (file: UploadFile) => {
-        const formData = new FormData();
-        formData.append("image", file.originFileObj as any, file.name);
-        formData.append("productId", productId);
+          const uploadResponse = await fetch(
+            "http://localhost:3002/api/images/upload",
+            {
+              method: "POST",
+              body: formData,
+            }
+          );
 
-        const uploadResponse = await fetch(
-          "http://localhost:3002/api/images/upload",
-          {
-            method: "POST",
-            body: formData,
+          if (!uploadResponse.ok) {
+            const errorData = await uploadResponse.json();
+            console.log(errorData);
+            throw new Error(errorData.message || "Image upload failed");
           }
-        );
 
-        if (!uploadResponse.ok) {
-          const errorData = await uploadResponse.json();
-          throw new Error(errorData.message || "Image upload failed");
+          const uploadResult = await uploadResponse.json();
+          newImageNames = newImageNames.concat(uploadResult.imageNames);
         }
+      }
 
-        const uploadResult = await uploadResponse.json();
-        return uploadResult.imageName; // Return image name after successful upload
-      };
+      // 2. Get existing image names
+      const existingImages = dataUpdate.images || [];
 
-      // Push the promise to the arrray
-      newFiles.forEach((file) => {
-        uploadPromises.push(uploadImage(file));
-      });
+      // 3. Combine existing and new image names
+      const allImages = [...existingImages, ...newImageNames];
 
-      // Wait for all uploads to complete and collect the image names
-      const newImageNames: string[] = await Promise.all(uploadPromises);
-
-      // Get the names of the images URLs
-      const images = fileList
-        .map((file) => {
-          if (file.url) {
-            const urlParts = file.url.split("/");
-            return urlParts[urlParts.length - 1];
-          }
-          return null; // Handle cases where image is neither URL nor has a response
-        })
-        .filter((image) => image !== null) as string[]; // Filter out nulls and assert type
-
-      // add the new image
-      images.push(...newImageNames);
-
-      // Update the product with all data
+      // 4. Update Product
       const res = await handleUpdateProductAction({
         ...values,
-        images: images,
+        images: allImages,
         sizeStock: sizeStocks,
         id: productId,
       });
 
+      // 5. Update state with returned data
       if (res) {
+        setDataUpdate(res); // <-- VERY IMPORTANT: Update local state!
         handleCloseUpdateModal();
         message.success("Update succeed");
       } else {
@@ -251,7 +230,7 @@ const UserUpdate = (props: IProps) => {
   const uploadProps = {
     beforeUpload: (file: RcFile) => {
       console.log("beforeUpload file: ", file);
-      return true;
+      return true; // Return true to allow the upload
     },
     onChange: handleUploadChange,
     multiple: true,
@@ -264,7 +243,7 @@ const UserUpdate = (props: IProps) => {
         return newFileList;
       });
     },
-    defaultFileList: fileList,
+    // defaultFileList: fileList, // Remove defaultFileList
   };
 
   return (

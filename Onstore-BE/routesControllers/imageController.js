@@ -9,56 +9,78 @@ const uploadImage = async (req, res) => {
       return res.status(400).json({ message: "No files were uploaded." });
     }
 
-    const image = req.files.image;
     const productId = req.body.productId;
 
     if (!productId) {
       return res.status(400).json({ message: "Product ID is required." });
     }
 
+    const files = req.files.image; // Access files correctly
+
+    if (!files) {
+      return res.status(400).json({ message: "No image files found." });
+    }
+
+    // Ensure files is always an array (even if only one file was uploaded)
+    const imageArray = Array.isArray(files) ? files : [files];
+
     const uploadDir = path.join(__dirname, "../images");
     if (!fs.existsSync(uploadDir)) {
       fs.mkdirSync(uploadDir, { recursive: true });
     }
 
-    const imageName =
-      crypto.randomBytes(20).toString("hex") + path.extname(image.name);
-    const imagePath = path.join(uploadDir, imageName);
+    const uploadPromises = imageArray.map(async (image) => {
+      const imageName =
+        crypto.randomBytes(20).toString("hex") + path.extname(image.name);
+      const imagePath = path.join(uploadDir, imageName);
 
-    image.mv(imagePath, async (err) => {
-      if (err) {
-        console.error(err);
-        return res.status(500).json({ message: "Failed to upload image." });
-      }
-      try {
-        // Use $push to atomically add the new image name to the array
-        const product = await Product.findByIdAndUpdate(
-          productId,
-          { $push: { images: imageName } },
-          { new: true, useFindAndModify: false }
-        );
+      return new Promise((resolve, reject) => {
+        image.mv(imagePath, async (err) => {
+          if (err) {
+            console.error(err);
+            reject({ message: "Failed to upload image.", error: err });
+            return;
+          }
+          try {
+            // Use $push to atomically add the new image name to the array
+            const product = await Product.findByIdAndUpdate(
+              productId,
+              { $push: { images: imageName } },
+              { new: true, useFindAndModify: false }
+            );
 
-        if (!product) {
-          return res
-            .status(404)
-            .json({ message: "Product not found during update." });
-        }
-
-        res.status(201).json({
-          product: productId,
-          message: "Image uploaded successfully.",
-          imageName: imageName,
-        }); // Return only the imageName
-      } catch (updateError) {
-        console.error("Error updating product:", updateError);
-        return res
-          .status(500)
-          .json({
-            message: "Failed to update product.",
-            error: updateError.message,
-          });
-      }
+            if (!product) {
+              reject({ message: "Product not found during update." });
+              return;
+            }
+            resolve({ imageName }); // Resolve with an object containing imageName
+          } catch (updateError) {
+            console.error("Error updating product:", updateError);
+            reject({
+              message: "Failed to update product.",
+              error: updateError.message,
+            });
+          }
+        });
+      });
     });
+
+    try {
+      //  Get the results of all promises.
+      const results = await Promise.all(uploadPromises);
+      //results is now an array of {imageName: "..."}
+
+      res.status(201).json({
+        // product: productId,  // You can still include the productId if needed.
+        imageNames: results.map((r) => r.imageName), // Send back an array of image names
+        message: "Images uploaded successfully.",
+      });
+    } catch (allErrors) {
+      console.error("Error during uploads:", allErrors);
+      res
+        .status(500)
+        .json({ message: "Failed to upload all images.", errors: allErrors });
+    }
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error.", error: error.message });

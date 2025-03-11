@@ -36,7 +36,7 @@ const ProductCreate = (props: IProps) => {
   const [listColl, setlistColl] = useState([]);
   const [listType, setlistType] = useState([]);
   const [sizeStocks, setSizeStocks] = useState<SizeStock[]>([]);
-  const [fileList, setFileList] = useState<UploadFile[]>([]); // Use UploadFile[ type
+  const [fileList, setFileList] = useState<UploadFile[]>([]);
 
   const handleCloseCreateModal = () => {
     form.resetFields();
@@ -62,14 +62,14 @@ const ProductCreate = (props: IProps) => {
         return;
       }
 
-      const productId = productResult._id; // Get the product ID
+      const productId = productResult._id;
 
-      // 2. Upload the image using the product ID
+      // 2. Upload the images using the product ID
       const formData = new FormData();
       fileList.forEach((file) => {
         formData.append("image", file.originFileObj as any, file.name);
       });
-      formData.append("productId", productId); // Use the correct productId
+      formData.append("productId", productId);
 
       const uploadResponse = await fetch(
         "http://localhost:3002/api/images/upload",
@@ -86,26 +86,6 @@ const ProductCreate = (props: IProps) => {
 
       const uploadResult = await uploadResponse.json();
       console.log("Image upload successful:", uploadResult);
-
-      // 3. Update the product with the image name
-      // Assuming you have an API endpoint to update the product
-      const updateResponse = await fetch(
-        `http://localhost:3002/api/products/${productId}`, // Replace with your update endpoint
-        {
-          method: "PUT", // Or PATCH
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ images: [uploadResult.imageName] }),
-        }
-      );
-
-      if (!updateResponse.ok) {
-        const errorData = await updateResponse.json();
-        throw new Error(
-          errorData.message || "Failed to update product with image"
-        );
-      }
 
       handleCloseCreateModal();
       message.success("Create succeed!");
@@ -173,7 +153,7 @@ const ProductCreate = (props: IProps) => {
   }, []);
 
   const handleAddSizeStock = () => {
-    setSizeStocks([...sizeStocks, { size: "", quantity: 0 }]); // Add an empty size stock entry
+    setSizeStocks([...sizeStocks, { size: "", quantity: 0 }]);
   };
 
   const handleSizeStockChange = (
@@ -183,13 +163,13 @@ const ProductCreate = (props: IProps) => {
   ) => {
     const newSizeStocks = [...sizeStocks];
 
-    // Assert types to ensure that the assignment is safe
     if (field === "size") {
-      // When field is 'size', value should be a string
-      newSizeStocks[index].size = value as string; // Type assertion to indicate it's a string
+      newSizeStocks[index] = { ...newSizeStocks[index], size: value as string };
     } else if (field === "quantity") {
-      // When field is 'quantity', value should be a number
-      newSizeStocks[index].quantity = value as number; // Type assertion to indicate it's a number
+      newSizeStocks[index] = {
+        ...newSizeStocks[index],
+        quantity: value as number,
+      };
     }
 
     setSizeStocks(newSizeStocks);
@@ -204,7 +184,7 @@ const ProductCreate = (props: IProps) => {
   const uploadProps = {
     beforeUpload: (file: RcFile) => {
       console.log("beforeUpload file: ", file);
-      return true; // Return false to prevent default upload
+      return true;
     },
     onChange: handleUploadChange,
     multiple: true,
