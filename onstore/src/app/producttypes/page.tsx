@@ -8,6 +8,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { fetchProductTypes, fetchCollections } from "@/utils/services";
 import MainDrawerList from "@/app/components/main/main.drawerlist";
 import path from "path";
+import Image from 'next/image';
+import bannerJPG from "./banner.jpg";
 
 interface Product {
   _id: string;
@@ -107,8 +109,7 @@ const ProductsTypePage = () => {
       } else {
         data = {
           name: "All Products",
-          image:
-            "https://global.bonanzasatrangi.com/cdn/shop/collections/Category-Banner_c1b4dfc7-cd89-4eca-9c6f-4c5e0036886e.webp?v=1731470439",
+          image: "default",
           _id: "all",
         };
       }
@@ -149,8 +150,7 @@ const ProductsTypePage = () => {
     } else {
       data = {
         name: "All Products",
-        image:
-          "https://global.bonanzasatrangi.com/cdn/shop/collections/Category-Banner_c1b4dfc7-cd89-4eca-9c6f-4c5e0036886e.webp?v=1731470439",
+        image: "default",
         _id: "all",
       };
     }
@@ -206,7 +206,7 @@ const ProductsTypePage = () => {
       selectedTypeObj || {
         name: "All Products",
         image:
-          "https://global.bonanzasatrangi.com/cdn/shop/collections/Category-Banner_c1b4dfc7-cd89-4eca-9c6f-4c5e0036886e.webp?v=1731470439",
+          "default",
         _id: "all",
       }
     );
@@ -506,8 +506,7 @@ const ProductsTypePage = () => {
 
         <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
           <div>
-            <div
-              style={{
+            <div style={{
                 height: "auto",
                 width: "100%",
                 paddingLeft: "20px",
@@ -515,11 +514,22 @@ const ProductsTypePage = () => {
               }}
             >
               {productType && (
-                <img
-                  src={productType.image}
-                  alt={productType.name}
-                  className="rounded-md"
-                />
+                productType.image === "default" ? (
+                  <Image
+                    src={bannerJPG}
+                    alt={productType.name}
+                    className="rounded-md"
+                    width={1200}  // Example width, adjust as needed
+                    height={300} // Example height, adjust as needed
+                    
+                  />
+                ) : (
+                  <img
+                    src={productType.image}
+                    alt={productType.name}
+                    className="rounded-md"
+                  />
+                )
               )}
             </div>
           </div>

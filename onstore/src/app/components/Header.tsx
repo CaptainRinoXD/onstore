@@ -437,6 +437,7 @@ const Header: React.FC<HeaderProps> = ({
 
         <div className="relative cursor-pointer" onClick={toggleUserModal}>
           <svg
+            id="userModal"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
@@ -521,6 +522,7 @@ const UserModal: React.FC<{
           </button>
           {isAdmin || isEmmployee ? (
             <button
+              id="Dashboard"
               onClick={() => router.push(`/dashboard`)}
               className="flex-grow py-2 rounded border border-gray-400 bg-red-500 text-white hover:bg-red-600">
               Dashboard
