@@ -7,6 +7,7 @@ import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
 import MainDrawerList from './main/main.drawerlist';
 import { fetchNewestCollections } from '@/utils/services';
 import { useRouter } from 'next/navigation';
+import path from 'path';
 
 interface ProductType {
   _id: string;
@@ -130,6 +131,8 @@ const Header: React.FC<HeaderProps> = ({
     </div>
   );
 
+    
+
   const NewArrivalsLinks = () => (
     <div
       className={`absolute transform -translate-x-1/3 translate-y-5 group-hover:translate-y-0 hover-to-show w-auto transition duration-500 ease-in-out rounded-md z-10 group-hover:flex p-2 ${
@@ -146,7 +149,7 @@ const Header: React.FC<HeaderProps> = ({
               className="flex flex-col items-center">
               <div className="relative overflow-hidden w-32 h-32 mb-2 transform transition-transform duration-300 hover:scale-110">
                 <img
-                  src={collection.images}
+                  src={getImageURL(collection.images)}
                   alt={collection.name}
                   className="w-full h-full object-cover"
                 />
@@ -213,7 +216,13 @@ const Header: React.FC<HeaderProps> = ({
     setSearchResults([]);
     setSearchQuery('');
     router.push(`/products/${product._id}`);
-  };
+    };
+    const getImageURL = (imageName: string) => {
+        const baseName = path.parse(imageName).name; // Get the filename without extension
+        const url = `http://localhost:3002/api/images/${baseName}`;
+        console.log("getImageURL called with:", imageName, "URL:", url); // Add this line
+        return url;
+    };
 
   return (
     <header

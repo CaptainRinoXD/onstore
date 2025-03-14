@@ -7,6 +7,7 @@ import { FiShoppingCart } from "react-icons/fi";
 import { useRouter, useSearchParams } from "next/navigation";
 import { fetchProductTypes, fetchCollections } from "@/utils/services";
 import MainDrawerList from "@/app/components/main/main.drawerlist";
+import path from "path";
 
 interface Product {
   _id: string;
@@ -597,6 +598,12 @@ const ProductCard: React.FC<ProductCardProps> = ({
     }
   };
 
+  const getImageURL = (imageName: string) => {
+    const baseName = path.parse(imageName).name;
+    const url = `http://localhost:3002/api/images/${baseName}`;
+    return url;
+  };
+
   return (
     <motion.div // Now correctly used as a JSX component
       whileHover={{ scale: 1.05, y: -5 }}
@@ -630,7 +637,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
           >
             <img
               alt={product.name}
-              src={product.images[0]}
+              src={getImageURL(product.images[0])}
               style={{
                 transition: "transform 0.3s ease",
                 transform: isHovered ? "scale(1.1)" : "scale(1)",

@@ -123,6 +123,9 @@ const getImage = (req, res) => {
       case ".gif":
         contentType = "image/gif";
         break;
+      case ".webp":
+        contentType = "image/webp";
+        break;
       default:
         return res.status(400).json({ message: "Unsupported image format." });
     }
@@ -139,4 +142,29 @@ const getImage = (req, res) => {
   });
 };
 
-module.exports = { uploadImage, getImage };
+const deleteImage = async (req, res) => {
+  try {
+    const imageName = req.params.imageName;
+    const imageDir = path.join(__dirname, "../images");
+    const imagePath = path.join(imageDir, imageName);
+
+    // Check if the image exists
+    if (!fs.existsSync(imagePath)) {
+      return res.status(404).json({ message: "Image not found." });
+    }
+
+    // Delete the image
+    fs.unlink(imagePath, async (err) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ message: "Error deleting image." });
+      }
+      res.status(200).json({ message: "Image deleted successfully." });
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error.", error: error.message });
+  }
+};
+
+module.exports = { uploadImage, getImage, deleteImage };
