@@ -6,6 +6,9 @@ import { FaHeart, FaShareAlt } from "react-icons/fa";
 import Layout from "./Layout"; // Import Layout
 import { useDispatch } from "react-redux";
 import { doAddCartAction } from "@/redux/order/orderSlice";
+import MainDrawerList from "@/app/components/main/main.drawerlist";
+import { message } from "antd";
+import React from "react";
 
 // Định nghĩa kiểu cho ProductDetailProps
 interface ProductDetailProps {
@@ -24,6 +27,34 @@ interface ProductDetailProps {
     };
   };
 }
+
+interface Product {
+  _id: string;
+  name: string;
+  description: string;
+  coll: string;
+  price: number;
+  category: string;
+  type: string;
+  size: string;
+  color: string;
+  brand: string;
+  material?: string;
+  stock: number;
+  createdAt: Date;
+  images: string[];
+  discountPrice?: number;
+  averageRating?: number;
+  reviews: {
+    username: string;
+    rating: number;
+    text: string;
+  }[];
+  careInstructions?: string;
+  releaseDate?: Date;
+}
+
+
 
 const ProductDetailContainer = styled(motion.div)`
   max-width: 1200px;
@@ -454,20 +485,54 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
   const [selectedImage, setSelectedImage] = useState(product?.images?.[0]);
   const [quantity, setQuantity] = useState(1);
   const [showDetails, setShowDetails] = useState(false);
+  const [open, setOpen] = React.useState(false);
 
-  const dispatch = useDispatch();
 
-  const handleAddCart = () => {
-    // let data = {
-    //   userId: session.user._id,
-    //   detail: [{ product: product._id, quantity: 1 }],
-    //   totalPrice: product.price,
-    // };
-    dispatch(doAddCartAction({ quantity: quantity, detail: product, _id: product.id }));
+
+  const addToCart = async () => {
+    try {
+      const response = await fetch(
+        `http://localhost:3002/api/carts/cartId/items`,
+        {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            productId: product.id,
+            quantity: 1,
+            price: product.price,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to add product to cart");
+      }
+
+      message.success(`${product.name} added to cart!`);
+      toggleDrawer(true)();
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        // Handle error when it's an instance of Error
+        message.error(
+          error.message || "An error occurred while adding to cart"
+        );
+      } else {
+        // Handle case when error is not an instance of Error
+        message.error("An unknown error occurred");
+      }
+    }
+  };
+
+  const toggleDrawer = (newOpen: boolean) => () => {
+    setOpen(newOpen);
   };
 
   return (
     <Layout>
+      <MainDrawerList toggleDrawer={toggleDrawer} open={open} />
       <ProductDetailContainer
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -499,15 +564,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
 
           <ColorSelector>
             <div className="color-status">In Stock</div>
-            <div>COLOR: {product.color}</div>
-            <div className="color-options">
-              <div
-                className={`color-option ${
-                  product.color === "L-GREEN" ? "selected" : ""
-                }`}
-                style={{ backgroundColor: "#90EE90" }}
-              />
-            </div>
+            <div>Màu sắc: {product.color}</div>
           </ColorSelector>
 
           <QuantitySelector>
@@ -515,12 +572,15 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
               -
             </button>
             <span>{quantity}</span>
-            <button onClick={() => setQuantity((q) => q + 1)}>+</button>
+            <button
+              onClick={() => setQuantity((q) => q + 1)}
+              style={{ backgroundColor: "#fff" }}
+            >
+              +
+            </button>
           </QuantitySelector>
 
-          <AddToCartButton>
-            <span onClick={() => handleAddCart()}>ADD TO CART</span>
-          </AddToCartButton>
+          <AddToCartButton onClick={addToCart}>ADD TO CART</AddToCartButton>
 
           <ProductDetails>
             <div

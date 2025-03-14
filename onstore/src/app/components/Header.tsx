@@ -7,6 +7,7 @@ import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
 import MainDrawerList from './main/main.drawerlist';
 import { fetchNewestCollections } from "@/utils/services";
 import { useRouter } from "next/navigation";
+import path from 'path';
 
 interface ProductType {
     _id: string;
@@ -104,6 +105,8 @@ const Header: React.FC<HeaderProps> = ({
         </div>
     );
 
+    
+
     const NewArrivalsLinks = () => (
         <div className={`absolute transform -translate-x-1/3 translate-y-5 group-hover:translate-y-0 hover-to-show w-auto transition duration-500 ease-in-out rounded-md z-10 group-hover:flex p-2 ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'}`} style={{ marginTop: "20px" }}>
             <div className="flex space-x-4">
@@ -111,7 +114,7 @@ const Header: React.FC<HeaderProps> = ({
                     <div key={collection._id} className="flex flex-col items-center p-2 w-40">
                         <Link href={`/producttypes?collection=${collection._id}`} className="flex flex-col items-center">
                             <div className="relative overflow-hidden w-32 h-32 mb-2 transform transition-transform duration-300 hover:scale-110">
-                                <img src={collection.images} alt={collection.name} className="w-full h-full object-cover" />
+                                <img src={getImageURL(collection.images)} alt={collection.name} className="w-full h-full object-cover" />
                             </div>
                             <span className="text-center transition-all duration-300 hover:text-blue-500">
                                 {collection.name}
@@ -165,6 +168,12 @@ const Header: React.FC<HeaderProps> = ({
         setSearchQuery("");
         router.push(`/products/${product._id}`);
     };
+    const getImageURL = (imageName: string) => {
+        const baseName = path.parse(imageName).name; // Get the filename without extension
+        const url = `http://localhost:3002/api/images/${baseName}`;
+        console.log("getImageURL called with:", imageName, "URL:", url); // Add this line
+        return url;
+      };
 
     return (
         <header className={`fixed top-0 w-full flex justify-between items-center shadow-md p-2 z-50 pt-4 pb-4 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`} style={{ fontWeight: "lighter" }}>
