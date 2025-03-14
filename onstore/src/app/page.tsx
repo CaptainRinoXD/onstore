@@ -44,11 +44,6 @@ interface Collection {
   createdAt?: Date;
 }
 
-interface ProductCardProps {
-  product: Product;
-  onClick: () => void;
-}
-
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
   variable: "--font-geist-sans",
@@ -241,12 +236,12 @@ export default function Home() {
             <div className="category-item large">
               <div className="category-image-container">
                 <img
-                  src="https://global.bonanzasatrangi.com/cdn/shop/files/Tile-Banner-1800-x1800_a20b3f6d-ce63-4e9c-ac3b-d51cb8f754a3_1000x.jpg?v=1730972167"
-                  alt="Winter Unstitched"
+                  src="https://insideretail.asia/wp-content/uploads/2024/03/purpose-bg.png"
+                  alt="2025 Bộ sưu tập mùa hè"
                 />
                 <div className="category-overlay">
-                  <h3>WINTER UNSTITCHED</h3>
-                  <Link href="/producttypes?collection=6773f359dff9956088b6a892">
+                  <h3>BỘ SƯU TẬP HÈ 2025</h3>
+                  <Link href="/producttypes?collection=67737df057b6d44ed5348d82">
                     <button className="shop-now-btn">SHOP NOW</button>
                   </Link>
                 </div>
@@ -256,27 +251,15 @@ export default function Home() {
             <div className="category-item">
               <div className="category-image-container">
                 <img
-                  src="https://global.bonanzasatrangi.com/cdn/shop/files/Tile-Banner-WomensToReady-600-x600_400x.jpg?v=1729627405"
+                  src="https://media.routine.vn/400x400/prod/media/ten11-lifestyle-jpg-i7zc.webp"
+                  height="200px"
                   alt="Ready to Wear"
                 />
                 <div className="category-overlay">
-                  <h3>READY TO WEAR</h3>
-                  <Link href="http://localhost:3000/producttypes?collection=67619aeff042177ed710cbef">
+                  <h3>BỘ SƯU TẬP MÙA LỄ HỘI 2025</h3>
+                  <Link href="/producttypes?collection=67ca92ebc95d75c18bacef1a">
                     <button className="shop-now-btn">SHOP NOW</button>
                   </Link>
-                </div>
-              </div>
-            </div>
-
-            <div className="category-item">
-              <div className="category-image-container">
-                <img
-                  src="https://global.bonanzasatrangi.com/cdn/shop/files/Sweaters_tile_400x.jpg?v=1729627570"
-                  alt="Men's Unstitched"
-                />
-                <div className="category-overlay">
-                  <h3>MEN'S UNSTITCHED</h3>
-                  <button className="shop-now-btn">SHOP NOW</button>
                 </div>
               </div>
             </div>

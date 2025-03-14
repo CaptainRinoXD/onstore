@@ -18,6 +18,7 @@ describe('TC004-004: Kiểm tra thêm đúng sản phẩm vào giỏ hàng', () 
 
     // Chọn một sản phẩm cụ thể, ví dụ: "Xuan Long Dress"
     cy.contains('Áo').click();
+    cy.contains('Áo').click();
 
     // Nhấn nút "Thêm vào giỏ hàng"
     cy.get('.sc-ivxoEo.gaNIUe').click();

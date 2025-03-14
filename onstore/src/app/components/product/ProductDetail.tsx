@@ -5,11 +5,15 @@ import { motion, AnimatePresence } from "framer-motion";
 import { FaHeart, FaShareAlt } from "react-icons/fa";
 import Layout from "@/app/components/Layout"; // Import Layout
 import path from "path";
+import { message } from "antd";
+import React from "react";
+import MainDrawerList from "@/app/components/main/main.drawerlist";
+import "@ant-design/v5-patch-for-react-19";
 
 // Định nghĩa kiểu cho ProductDetailProps
 interface ProductDetailProps {
   product: {
-    id: string;
+    _id: string;
     name: string;
     price: number;
     originalPrice: number;
@@ -460,9 +464,53 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
     console.log("getImageURL called with:", imageName, "URL:", url); // Add this line
     return url;
   };
-  
+
+  const [open, setOpen] = React.useState(false);
+
+  const addToCart = async () => {
+    try {
+      const response = await fetch(
+        `http://localhost:3002/api/carts/cartId/items`,
+        {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            productId: product._id,
+            quantity: 1,
+            price: product.price,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to add product to cart");
+      }
+
+      message.success(`${product.name} added to cart!`);
+      toggleDrawer(true)();
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        // Handle error when it's an instance of Error
+        message.error(
+          error.message || "An error occurred while adding to cart"
+        );
+      } else {
+        // Handle case when error is not an instance of Error
+        message.error("An unknown error occurred");
+      }
+    }
+  };
+
+  const toggleDrawer = (newOpen: boolean) => () => {
+    setOpen(newOpen);
+  };
+
   return (
     <Layout>
+      <MainDrawerList toggleDrawer={toggleDrawer} open={open} />
       <ProductDetailContainer
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -523,7 +571,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
             </button>
           </QuantitySelector>
 
-          <AddToCartButton>ADD TO CART</AddToCartButton>
+          <AddToCartButton onClick={addToCart}>ADD TO CART</AddToCartButton>
 
           <ProductDetails>
             <div
