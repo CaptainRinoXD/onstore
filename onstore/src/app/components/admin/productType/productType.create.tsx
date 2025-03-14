@@ -1,5 +1,5 @@
-// d:\-----.Projects\2024-OnlineStore_NodeJS\NEW\onstore\onstore\src\app\components\admin\productType\productType.create.tsx
-import { handleCreateProductAction, handleCreateProductTypeAction } from "@/utils/actions";
+// onstore/src/app/components/admin/productType/productType.create.tsx
+import { handleCreateProductTypeAction } from "@/utils/actions";
 import {
   Modal,
   Input,
@@ -12,7 +12,7 @@ import {
   UploadProps,
   Button,
 } from "antd";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 interface IProps {
   isCreateModalOpen: boolean;
@@ -28,10 +28,9 @@ const ProductTypeCreate = (props: IProps) => {
   const { isCreateModalOpen, setIsCreateModalOpen } = props;
 
   const [form] = Form.useForm();
-  const [sizeStocks, setSizeStocks] = useState<SizeStock[]>([]);
-    const [fileList, setFileList] = useState<any[]>([]);
+  const [fileList, setFileList] = useState<any[]>([]);
 
-    const uploadProps: UploadProps = {
+  const uploadProps: UploadProps = {
     beforeUpload: (file) => {
       setFileList([file]);
       return false; // Prevent default upload
@@ -40,34 +39,31 @@ const ProductTypeCreate = (props: IProps) => {
     onRemove: () => {
       setFileList([]);
     },
-    };
+  };
 
-
-    
   const handleCloseCreateModal = () => {
     form.resetFields();
     setIsCreateModalOpen(false);
     setFileList([]);
-    setSizeStocks([]);
   };
 
   const onFinish = async (values: any) => {
     const formData = new FormData();
     formData.append('name', values.name);
     formData.append('description', values.description);
-    if(fileList && fileList.length > 0){
-        formData.append('image', fileList[0]);
+    if (fileList && fileList.length > 0) {
+      formData.append('image', fileList[0]); // Correctly append the file
     }
-    
+
     const res = await handleCreateProductTypeAction(formData);
-    
-    if (res) {
+
+    if (res.success) { // Check for success property
       handleCloseCreateModal();
       message.success("Create succeed!");
     } else {
       notification.error({
         message: "Create error",
-        description: res?.message,
+        description: res.message, // Display the error message
       });
     }
   };
@@ -92,7 +88,7 @@ const ProductTypeCreate = (props: IProps) => {
               <Input />
             </Form.Item>
           </Col>
-            <Col span={12}>
+          <Col span={12}>
             <Form.Item
               label="Description"
               name="description"
@@ -102,12 +98,12 @@ const ProductTypeCreate = (props: IProps) => {
             </Form.Item>
           </Col>
         </Row>
-          <Row gutter={[15, 15]}>
+        <Row gutter={[15, 15]}>
           <Col span={24}>
-             <Form.Item label="Image">
-                <Upload {...uploadProps} >
-                     <Button>Select Image</Button>
-                </Upload>
+            <Form.Item label="Image">
+              <Upload {...uploadProps} >
+                <Button>Select Image</Button>
+              </Upload>
             </Form.Item>
           </Col>
         </Row>

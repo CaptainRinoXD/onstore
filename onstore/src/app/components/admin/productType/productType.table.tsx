@@ -1,7 +1,7 @@
 // d:\-----.Projects\2024-OnlineStore_NodeJS\NEW\onstore\onstore\src\app\components\admin\productType\productType.table.tsx
 "use client";
 import {
-  handleDeleteProductTypeAction,
+  handleDeleteProductAction,
 } from "@/utils/actions";
 import { DeleteTwoTone, EditTwoTone } from "@ant-design/icons";
 import { Button, Image, Popconfirm, Table, Tag } from "antd"; 
@@ -61,7 +61,7 @@ const ProductTypeTable = (props: any) => {
               title={"Xác nhận xóa"}
               description={"Bạn có chắc chắn muốn xóa này ?"}
               onConfirm={async () =>
-                await handleDeleteProductTypeAction(record?._id)
+                await handleDeleteProductAction(record?._id)
               }
               okText="Xác nhận"
               cancelText="Hủy"
