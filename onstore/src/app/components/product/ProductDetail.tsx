@@ -8,6 +8,7 @@ import path from "path";
 import { message } from "antd";
 import React from "react";
 import MainDrawerList from "@/app/components/main/main.drawerlist";
+import "@ant-design/v5-patch-for-react-19";
 
 // Định nghĩa kiểu cho ProductDetailProps
 interface ProductDetailProps {

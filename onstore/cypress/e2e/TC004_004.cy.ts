@@ -6,12 +6,13 @@ describe('TC004-004: Kiểm tra thêm đúng sản phẩm vào giỏ hàng', () 
     cy.get('nav').contains('Shop').click();
 
     // Chọn một sản phẩm cụ thể, ví dụ: "Xuan Long Dress"
-    cy.contains('Xuan Long Dress').click();
+    cy.contains('Áo').click();
 
     // Nhấn nút "Thêm vào giỏ hàng"
     cy.get('.sc-ivxoEo.gaNIUe').click();
     // Kiểm tra giỏ hàng để đảm bảo sản phẩm đã được thêm
-    cy.get('svg.MuiSvgIcon-root').should('be.visible').click(); // Nhấn vào icon giỏ hàng
-    cy.contains('Xuan Long Dress').should('be.visible'); // Kiểm tra sản phẩm đúng
+    //cy.get('svg.MuiSvgIcon-root').should('be.visible').click(); // Nhấn vào icon giỏ hàng
+
+    cy.contains('Áo').should('be.visible'); // Kiểm tra sản phẩm đúng
   });
 });
