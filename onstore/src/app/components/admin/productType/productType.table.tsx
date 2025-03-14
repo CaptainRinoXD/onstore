@@ -1,9 +1,11 @@
+// d:\-----.Projects\2024-OnlineStore_NodeJS\NEW\onstore\onstore\src\app\components\admin\productType\productType.table.tsx
 "use client";
 import {
   handleDeleteProductTypeAction,
 } from "@/utils/actions";
 import { DeleteTwoTone, EditTwoTone } from "@ant-design/icons";
 import { Button, Image, Popconfirm, Table, Tag } from "antd"; 
+import "@ant-design/v5-patch-for-react-19";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import UserCreate from "./productType.create";
@@ -34,13 +36,13 @@ const ProductTypeTable = (props: any) => {
       title: "Description",
       dataIndex: "description",
     },
-    // {
-    //   title: "Ảnh",
-    //   dataIndex: "images",
-    //   render: (images: any) => (
-    //     <Image src={images?.[0]} height={40} alt="Product Image" />
-    //   ),
-    // },
+     {
+        title: "Image",
+        dataIndex: "image",
+        render: (image: any) => (
+            <Image src={image} height={40} alt="Product Type Image" />
+        ),
+    },
     {
       title: "Actions",
       render: (text: any, record: any, index: any) => {

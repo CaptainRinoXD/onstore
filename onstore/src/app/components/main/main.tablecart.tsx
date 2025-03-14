@@ -4,26 +4,67 @@ import { formatPrice } from "@/utils/functionShare";
 import {
   Box,
   Button,
-  Input,
   Paper,
   Table,
   TableBody,
   TableCell,
   TableContainer,
-  TableFooter,
   TableHead,
   TableRow,
-  Typography,
 } from "@mui/material";
-import Image from "next/image";
-import React from "react";
-import { useSelector } from "react-redux";
+import React, { useState, useEffect, useCallback } from "react";
 import MainRowCart from "./main.rowcart";
 import { useRouter } from "next/navigation";
 
+
+interface Icart {
+  _id: string;
+  items: IcartItem[];
+  total: number;
+}
+
+interface IcartItem {
+  product: {
+    _id: string;
+    name: string;
+    images: string[];
+    price: number;
+  };
+  quantity: number;
+   size: string;
+   _id: string;
+}
+
+
 const MainTableCart = () => {
   const router = useRouter();
-  const cart: ICart[] = useSelector((state: any) => state.order.carts);
+  const [cart, setCart] = useState<Icart | null>(null);
+
+    const getCart = useCallback(async () => {
+      try {
+        const response = await fetch('http://localhost:3002/api/carts/cartId', {
+          method: 'GET',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        if(!response.ok){
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const data = await response.json();
+        //console.log("cart data: " + JSON.stringify(data));
+        setCart(data);
+      } catch (error) {
+         console.log("Error fetching cart:", error);
+      }
+    },[]);
+
+
+  useEffect(() => {
+      getCart()
+  }, [getCart])
+
 
   return (
     <>
@@ -40,11 +81,12 @@ const MainTableCart = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {cart.map((row, index) => (
+            {cart?.items?.map((row, index) => (
               <MainRowCart
                 detailCart={row}
                 index={index}
-                key={index}
+                 key={row._id}
+                getCart={getCart}
               ></MainRowCart>
             ))}
           </TableBody>

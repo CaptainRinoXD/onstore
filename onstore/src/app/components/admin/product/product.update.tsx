@@ -10,9 +10,15 @@ import {
   Select,
   Button,
   InputNumber,
+  Upload,
 } from "antd";
-import { DeleteOutlined } from '@ant-design/icons';
+import { DeleteOutlined } from "@ant-design/icons";
 import { useEffect, useState } from "react";
+import {
+  RcFile,
+  UploadFile,
+  UploadChangeParam,
+} from "antd/es/upload/interface";
 
 interface IProps {
   isUpdateModalOpen: boolean;
@@ -34,6 +40,7 @@ const UserUpdate = (props: IProps) => {
   const [listColl, setlistColl] = useState([]);
   const [listType, setlistType] = useState([]);
   const [sizeStocks, setSizeStocks] = useState<SizeStock[]>([]);
+  const [fileList, setFileList] = useState<UploadFile[]>([]);
 
   useEffect(() => {
     if (dataUpdate) {
@@ -43,30 +50,80 @@ const UserUpdate = (props: IProps) => {
         coll: dataUpdate.coll,
         color: dataUpdate.color,
         brand: dataUpdate.brand,
-        images: dataUpdate.images,
         type: dataUpdate.type,
         price: dataUpdate.price,
         description: dataUpdate.description,
       });
-      // Set sizeStocks from the dataUpdate
       setSizeStocks(dataUpdate.sizeStock);
+
+      // Transform image URLs to UploadFile format
+      const initialFileList: UploadFile[] = dataUpdate.images
+        ? dataUpdate.images.map((imageUrl: string, index: number) => ({
+            uid: `-${index}`, // Unique ID for each file
+            name: `image-${index}`, // Filename
+            status: "done", // Status of the file
+            url: `http://localhost:3002/api/images/${imageUrl}`, // URL of the image
+          }))
+        : [];
+      setFileList(initialFileList);
     }
-  }, [dataUpdate]);
+  }, [dataUpdate, form]); // Add form to dependency array
 
   const handleCloseUpdateModal = () => {
     form.resetFields();
     setIsUpdateModalOpen(false);
     setDataUpdate(null);
+    setFileList([]);
   };
 
   const onFinish = async (values: any) => {
-    if (dataUpdate) {
+    try {
+      const productId = dataUpdate._id;
+
+      // 1. Upload new images
+      let newImageNames: string[] = [];
+      for (const file of fileList) {
+        if (file.originFileObj) {
+          const formData = new FormData();
+          formData.append("image", file.originFileObj as any, file.name);
+          formData.append("productId", productId);
+
+          const uploadResponse = await fetch(
+            "http://localhost:3002/api/images/upload",
+            {
+              method: "POST",
+              body: formData,
+            }
+          );
+
+          if (!uploadResponse.ok) {
+            const errorData = await uploadResponse.json();
+            console.log(errorData);
+            throw new Error(errorData.message || "Image upload failed");
+          }
+
+          const uploadResult = await uploadResponse.json();
+          newImageNames = newImageNames.concat(uploadResult.imageNames);
+        }
+      }
+
+      // 2. Get existing image names
+      const existingImages = dataUpdate.images || [];
+
+      // 3. Combine existing and new image names
+      const allImages = [...existingImages, ...newImageNames];
+
+      // 4. Update Product
       const res = await handleUpdateProductAction({
         ...values,
-        sizeStock: sizeStocks, // Include the sizeStock
-        id: dataUpdate._id,
+        images: allImages,
+        sizeStock: sizeStocks,
+        id: productId,
       });
+
+      // 5. Update state with returned data
       if (res) {
+        setDataUpdate(res); // <-- VERY IMPORTANT: Update local state!
         handleCloseUpdateModal();
         message.success("Update succeed");
       } else {
@@ -75,6 +132,11 @@ const UserUpdate = (props: IProps) => {
           description: res?.message,
         });
       }
+    } catch (error: any) {
+      notification.error({
+        message: "Error",
+        description: error.message,
+      });
     }
   };
 
@@ -128,8 +190,13 @@ const UserUpdate = (props: IProps) => {
     setlistType(a);
   };
 
+  useEffect(() => {
+    listAColl();
+    listAType();
+  }, []);
+
   const handleAddSizeStock = () => {
-    setSizeStocks([...sizeStocks, { size: "", quantity: 0 }]); // Add a new size stock entry
+    setSizeStocks([...sizeStocks, { size: "", quantity: 0 }]);
   };
 
   const handleSizeStockChange = (
@@ -139,27 +206,45 @@ const UserUpdate = (props: IProps) => {
   ) => {
     const newSizeStocks = [...sizeStocks];
 
-    // Assert types to ensure that the assignment is safe
     if (field === "size") {
-      // When field is 'size', value should be a string
-      newSizeStocks[index].size = value as string; // Type assertion to indicate it's a string
+      newSizeStocks[index].size = value as string;
     } else if (field === "quantity") {
-      // When field is 'quantity', value should be a number
-      newSizeStocks[index].quantity = value as number; // Type assertion to indicate it's a number
+      newSizeStocks[index].quantity = value as number;
     }
 
     setSizeStocks(newSizeStocks);
   };
 
   const handleRemoveSizeStock = (index: number) => {
-    const newSizeStocks = sizeStocks.filter((_, i) => i !== index);
+    const newSizeStocks = [...sizeStocks];
+    newSizeStocks.splice(index, 1);
     setSizeStocks(newSizeStocks);
   };
 
-  useEffect(() => {
-    listAColl();
-    listAType();
-  }, []);
+  const handleUploadChange = ({
+    fileList: newFileList,
+  }: UploadChangeParam<UploadFile>) => {
+    setFileList(newFileList);
+  };
+
+  const uploadProps = {
+    beforeUpload: (file: RcFile) => {
+      console.log("beforeUpload file: ", file);
+      return true; // Return true to allow the upload
+    },
+    onChange: handleUploadChange,
+    multiple: true,
+    fileList: fileList,
+    onRemove: (file: UploadFile) => {
+      setFileList((prevFileList) => {
+        const index = prevFileList.indexOf(file);
+        const newFileList = prevFileList.slice();
+        newFileList.splice(index, 1);
+        return newFileList;
+      });
+    },
+    // defaultFileList: fileList, // Remove defaultFileList
+  };
 
   return (
     <Modal
@@ -170,7 +255,7 @@ const UserUpdate = (props: IProps) => {
       maskClosable={false}
       width={800}
     >
-      <Form name="basic" onFinish={onFinish} layout="vertical" form={form}>
+      <Form onFinish={onFinish} layout="vertical" form={form}>
         <Row gutter={[15, 15]}>
           <Col span={8}>
             <Form.Item
@@ -223,7 +308,7 @@ const UserUpdate = (props: IProps) => {
             <Form.Item
               label="Type"
               name="type"
-              rules={[{ required: true, message: "Please select a type!" }]}
+              rules={[{ required: true, message: "Please input your type!" }]}
             >
               <Select options={listType} />
             </Form.Item>
@@ -239,13 +324,11 @@ const UserUpdate = (props: IProps) => {
               <Input />
             </Form.Item>
           </Col>
-          <Col span={8}>
-            <Form.Item
-              label="Image"
-              name="images"
-              rules={[{ required: true, message: "Please input your image!" }]}
-            >
-              <Input />
+          <Col span={16}>
+            <Form.Item label="Images">
+              <Upload {...uploadProps}>
+                <Button icon={null}>Select Files</Button>
+              </Upload>
             </Form.Item>
           </Col>
         </Row>
@@ -310,6 +393,15 @@ const UserUpdate = (props: IProps) => {
                       )
                     }
                   />
+                </Col>
+                <Col span={4}>
+                  <Button
+                    type="dashed"
+                    danger
+                    onClick={() => handleRemoveSizeStock(index)}
+                  >
+                    Remove
+                  </Button>
                 </Col>
               </Row>
             ))}

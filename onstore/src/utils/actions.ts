@@ -204,9 +204,49 @@ export const handleDeleteUserAction = async (id: any) => {
 
 
 // orrder 
-export const handleAddOrderAction = async (data: any) => {
-  const respon = await fetch(`http://localhost:3002/api/order`, {
-      method: "POST", // Thay đổi method thành POST
+export const handleAddOrderAction = async () => { 
+  try {
+    const respon = await fetch(`http://localhost:3002/api/orders`, { 
+      method: "POST",
+      credentials: 'include',
+      headers: {
+          "Content-Type": "application/json", // Xác định loại dữ liệu được gửi
+        }
+    });
+    
+  if (!respon) {
+      return}
+  
+  const res = await respon.json();
+  // revalidateTag("list-users")
+  return res;
+  } catch (error) {
+    throw error // Rethrow the error to be handled by the caller
+  }  
+}
+
+export const handleGetOrderById = async () => {
+
+  const respon = await fetch('http://localhost:3002/api/orders/currentUser', {
+    method: 'GET',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+  if (!respon) {
+    return}
+
+const res = await respon.json();
+console.log("res",res)
+// revalidateTag("list-users")
+  return res;
+}
+
+export const handleUpdateOrderAction = async (data: any) => {
+  console.log('data',data)
+  const respon = await fetch(`http://localhost:3002/api/orders/${data.id}`, {
+      method: "PUT", // Thay đổi method thành POST
       headers: {
         "Content-Type": "application/json", // Xác định loại dữ liệu được gửi
       },
@@ -219,6 +259,8 @@ export const handleAddOrderAction = async (data: any) => {
       return}
     
   const res = await respon.json();
-  // revalidateTag("list-users")
+  console.log('res',res)
+
+  revalidateTag("list-order")
   return res;
 }

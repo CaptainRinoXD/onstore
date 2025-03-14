@@ -38,7 +38,7 @@ const ProductTable = (props: any) => {
       render: (text: any, record: any) => {
         return record.sizeStock.map(
           (item: { size: string; quantity: number }) => (
-            <Tag key={item.size}>
+            <Tag key={`${item.size}-${item.quantity}`}>
               {item.size}: {item.quantity}
             </Tag>
           )

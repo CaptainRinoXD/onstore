@@ -120,6 +120,24 @@ const getProductsByProductType = async (req, res) => {
    }
 };
 
+const searchProducts = async (req, res) => {
+    try {
+        const { query } = req.query;
+
+        if (!query) {
+           return res.status(400).json({message: 'Please provide a search query' });
+        }
+        
+        const products = await Product.find({
+            name: { $regex: query, $options: 'i' } // 'i' for case-insensitive search
+        }).limit(10); // Limit to top 10 results (for performance)
+
+        res.status(200).json(products);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
 // Export controller functions
 module.exports = {
     createProduct,
@@ -131,4 +149,5 @@ module.exports = {
     getProductReviews,
     updateSizeStock,
     getProductsByProductType,
+    searchProducts,
 };

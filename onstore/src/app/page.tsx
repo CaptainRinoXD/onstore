@@ -1,10 +1,14 @@
+// onstore/src/app/page.tsx
 "use client";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import localFont from "next/font/local";
 import Layout from "./components/Layout";
 import { useRouter } from "next/navigation";
-
+import Link from "next/link";
+import MainDrawerList from "@/app/components/main/main.drawerlist";
+import React from "react";
+import path from "path";
 
 interface Product {
   _id: string;
@@ -58,6 +62,10 @@ export default function Home() {
   const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [fade, setFade] = useState(false);
+  const [open, setOpen] = React.useState(false);
+  const toggleDrawer = (newOpen: boolean) => () => {
+    setOpen(newOpen);
+  };
 
   const visibleCount = 4; // Number of products visible at once
 
@@ -87,11 +95,13 @@ export default function Home() {
   }, []);
 
   const handleNextBanner = () => {
-    setFade(true);  // Start fade animation
+    setFade(true); // Start fade animation
     setTimeout(() => {
-      setCurrentBannerIndex((prevIndex) => (prevIndex + 1) % collections.length);
-      setFade(false);  // Reset fade after the image changes
-    }, 180);  // Adjust timeout to match the CSS transition duration
+      setCurrentBannerIndex(
+        (prevIndex) => (prevIndex + 1) % collections.length
+      );
+      setFade(false); // Reset fade after the image changes
+    }, 180); // Adjust timeout to match the CSS transition duration
   };
 
   const handlePreviousBanner = () => {
@@ -106,41 +116,86 @@ export default function Home() {
 
   const handleNext = () => {
     // Move to the next product but keep within bounds
-    setCurrentIndex((prevIndex) => 
-      (prevIndex + 1) % products.length
-    );
+    setCurrentIndex((prevIndex) => (prevIndex + 1) % products.length);
   };
 
   const handlePrevious = () => {
     // Move to the previous product but keep within bounds
-    setCurrentIndex((prevIndex) => 
-      (prevIndex - 1 + products.length) % products.length
+    setCurrentIndex(
+      (prevIndex) => (prevIndex - 1 + products.length) % products.length
     );
   };
-  
+
   const maxIndex = products.length - visibleCount; // Total number of allowed presses
 
   const router = useRouter();
-  const hanldeReToDetail = (id: string) => {
-    router.push(`/product/${id}`);
-  }
+  const hanldeReToDetail = (id: string, type: string) => {
+    router.push(`/products/${id}`);
+  };
+  const handleAddToCart = async (productId: string, price: number) => {
+    try {
+      const response = await fetch(
+        `http://localhost:3002/api/carts/cartId/items`,
+        {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            productId: productId,
+            quantity: 1,
+            price: price,
+          }), // Assuming 1 is the quantity
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to add product to cart");
+      }
+      toggleDrawer(true)();
+
+      //message.success(`${product.name} added to cart!`); // Show success message
+    } catch (error) {
+      //message.error(error.message || 'An error occurred while adding to cart');
+      console.error("Error adding to cart:", error);
+    }
+  };
+
+  const getImageURL = (imageName: string) => {
+    const baseName = path.parse(imageName).name; // Get the filename without extension
+    const url = `http://localhost:3002/api/images/${baseName}`;
+    return url;
+  };
+
   return (
     <Layout>
-      <div className={`${geistSans.variable} ${geistMono.variable} flex flex-col px-2 pb-2`}>
-        <main className="flex-grow flex flex-col items-center text-center mt-2">
+      <MainDrawerList toggleDrawer={toggleDrawer} open={open} />
+      <div
+        className={`${geistSans.variable} ${geistMono.variable} flex flex-col `}
+      >
+        <main className="flex-grow flex flex-col items-center text-center">
           {collections.length > 0 && (
-            <div className="relative w-full ">
-              <div className={`transition-opacity duration-500 ease-in-out ${fade ? 'opacity-0' : 'opacity-100'}`}>
-                <Image
-                  src={collections[currentBannerIndex].images || "/placeholder.png"}
-                  alt={collections[currentBannerIndex].name}
-                  layout="responsive"
-                  width={1450}
-                  height={500}
-                  className="w-full"
-                  style={{ maxHeight: '800px'}}
-                />
-                <h1 className="flex justify-center mt-4 bottom-10 left-10 text-4xl font-bold ">
+            <div className="relative w-full">
+              <div
+                className={`transition-opacity duration-500 ease-in-out ${
+                  fade ? "opacity-0" : "opacity-100"
+                }`}
+              >
+                {/* Đặt div bao quanh ảnh với chiều cao cố định */}
+                <div className="image-container relative w-full h-[500px]">
+                  <Image
+                    src={
+                      getImageURL(collections[currentBannerIndex].images) ||
+                      "/placeholder.png"
+                    }
+                    alt={collections[currentBannerIndex].name}
+                    layout="fill" // Sử dụng layout "fill" để ảnh phủ đầy div
+                    objectFit="cover" // Đảm bảo ảnh không bị méo
+                    className="w-full h-full"
+                  />
+                </div>
+                <h1 className="flex justify-center mt-4 bottom-10 left-10 text-4xl font-bold">
                   {collections[currentBannerIndex].name}
                 </h1>
                 <p className="flex justify-center bottom-4 left-10 text-lg">
@@ -148,13 +203,13 @@ export default function Home() {
                 </p>
                 <button
                   onClick={handlePreviousBanner}
-                  className="absolute top-1/2 left-4 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-lg"
+                  className="absolute top-1/2 left-4 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-lg transition-all duration-300 ease-in-out hover:bg-opacity-75 hover:scale-110"
                 >
                   ◀
                 </button>
                 <button
                   onClick={handleNextBanner}
-                  className="absolute top-1/2 right-4 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-lg"
+                  className="absolute top-1/2 right-4 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-lg transition-all duration-300 ease-in-out hover:bg-opacity-75 hover:scale-110"
                 >
                   ▶
                 </button>
@@ -162,36 +217,210 @@ export default function Home() {
             </div>
           )}
         </main>
+        <style jsx>{`
+          .image-container {
+            position: relative;
+            width: 100%;
+            height: 500px; /* Chiều cao cố định cho ảnh */
+          }
 
-         {/* New Arrivals Section */}
+          .image-container img {
+            object-fit: cover; /* Đảm bảo ảnh sẽ không bị méo và lấp đầy không gian */
+            width: 100%;
+            height: 100%;
+          }
+        `}</style>
+
+        <section className="categories-section mt-8">
+          <div className="categories-grid">
+            <div className="category-item large">
+              <div className="category-image-container">
+                <img
+                  src="https://insideretail.asia/wp-content/uploads/2024/03/purpose-bg.png"
+                  alt="2025 Bộ sưu tập mùa hè"
+                />
+                <div className="category-overlay">
+                  <h3>BỘ SƯU TẬP HÈ 2025</h3>
+                  <Link href="/producttypes?collection=67737df057b6d44ed5348d82">
+                    <button className="shop-now-btn">SHOP NOW</button>
+                  </Link>
+                </div>
+              </div>
+            </div>
+
+            <div className="category-item">
+              <div className="category-image-container">
+                <img
+                  src="https://media.routine.vn/400x400/prod/media/ten11-lifestyle-jpg-i7zc.webp"
+                  height="200px"
+                  alt="Ready to Wear"
+                />
+                <div className="category-overlay">
+                  <h3>BỘ SƯU TẬP MÙA LỄ HỘI 2025</h3>
+                  <Link href="/producttypes?collection=67ca92ebc95d75c18bacef1a">
+                    <button className="shop-now-btn">SHOP NOW</button>
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <style jsx>{`
+          .categories-section {
+            padding: 2rem;
+          }
+
+          .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            max-width: 1400px;
+            margin: 0 auto;
+          }
+
+          .category-item {
+            position: relative;
+            overflow: hidden;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+          }
+
+          .category-item.large {
+            grid-column: span 2;
+            grid-row: span 2;
+          }
+
+          .category-image-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+          }
+
+          .category-image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+          }
+
+          .category-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+          }
+
+          .category-item:hover .category-overlay {
+            opacity: 1;
+          }
+
+          .category-item:hover .category-image-container img {
+            transform: scale(1.1);
+          }
+
+          .category-overlay h3 {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+          }
+
+          .shop-now-btn {
+            padding: 0.8rem 2rem;
+            background: white;
+            color: black;
+            border: none;
+            border-radius: 4px;
+            font-weight: 500;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+            cursor: pointer;
+          }
+
+          .category-item:hover .category-overlay h3,
+          .category-item:hover .shop-now-btn {
+            transform: translateY(0);
+          }
+
+          .shop-now-btn:hover {
+            background: black;
+            color: white;
+            transform: translateY(0) scale(1.05);
+          }
+
+          @media (max-width: 768px) {
+            .categories-grid {
+              grid-template-columns: 1fr;
+            }
+
+            .category-item.large {
+              grid-column: auto;
+              grid-row: auto;
+            }
+          }
+        `}</style>
+        {/* New Arrivals Section */}
         <section className="flex flex-col items-center">
           <h3 className="text-xl font-semibold mb-4">New Arrivals</h3>
           {products.length > 0 && (
-            <div className="relative w-4/5 overflow-hidden ">
+            <div className="relative w-4/5 overflow-hidden">
               {/* Product Slide Container */}
               <div
-                className="flex transition-transform duration-500 ease-in-out "
+                className="flex transition-transform duration-500 ease-in-out"
                 style={{
-                  transform: `translateX(-${currentIndex * (100 / visibleCount)}%)`,
+                  transform: `translateX(-${
+                    currentIndex * (100 / visibleCount)
+                  }%)`,
                   width: `products.length`,
                 }}
               >
                 {/* Individual Product Cards */}
-                {products.map((product, index) => (
+                {products.map((product) => (
                   <div
                     key={product._id}
-                    className="flex justify-center items-center "
+                    className="flex justify-center items-center"
                     style={{ width: `${100 / visibleCount}%` }}
-                    onClick={()=> hanldeReToDetail(product._id)}
+                    onClick={() => hanldeReToDetail(product._id, product.type)}
                   >
-                    <div className="p-4 box-border w-80 image-container">
-                      <Image
-                        src={product.images[0] || "/placeholder.png"}
-                        alt={product.name}
-                        width={300}
-                        height={400}
-                        className="image"
-                      />
+                    <div className="relative p-4 box-border w-80 category-item">
+                      <div className="category-image-container">
+                        <Image
+                          src={
+                            getImageURL(product.images[0]) || "/placeholder.png"
+                          }
+                          alt={product.name}
+                          width={300}
+                          height={400}
+                          className="object-cover w-80 h-auto"
+                        />
+                        {/* Overlay */}
+                        <div className="category-overlay">
+                          <h3>{product.name}</h3>
+                          <button className="shop-now-btn">SHOP NOW</button>
+                          <button
+                            className="add-to-cart-btn"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleAddToCart(product._id, product.price);
+                              toggleDrawer(true);
+                            }}
+                          >
+                            ADD TO CART
+                          </button>
+                        </div>
+                      </div>
                       <div className="mt-2 text-center">
                         <p className="text-sm font-medium">{product.name}</p>
                         <p className="text-lg font-bold">${product.price}</p>
@@ -205,20 +434,133 @@ export default function Home() {
               <button
                 onClick={handlePrevious}
                 disabled={currentIndex === 0}
-                className="absolute top-1/2 left-4 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-lg"
+                className="absolute top-1/2 left-4 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-lg transition-all duration-300 ease-in-out hover:bg-opacity-75 hover:scale-110 disabled:bg-opacity-30 disabled:cursor-not-allowed"
               >
                 ◀
               </button>
               <button
                 onClick={handleNext}
                 disabled={currentIndex >= maxIndex}
-                className="absolute top-1/2 right-4 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-lg"
+                className="absolute top-1/2 right-4 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-lg transition-all duration-300 ease-in-out hover:bg-opacity-75 hover:scale-110 disabled:bg-opacity-30 disabled:cursor-not-allowed"
               >
                 ▶
               </button>
             </div>
           )}
         </section>
+
+        <style jsx>{`
+          /* Product Card Container */
+          .category-item {
+            position: relative;
+            overflow: hidden;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+          }
+
+          /* Hover Effects - Overlay and Image */
+          .category-image-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+          }
+
+          .category-image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+          }
+
+          .category-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+          }
+
+          .category-item:hover .category-overlay {
+            opacity: 1;
+          }
+
+          .category-item:hover .category-image-container img {
+            transform: scale(1.1);
+          }
+
+          /* Overlay Text */
+          .category-overlay h3 {
+            color: #e0e0e0; /* Lighter color for the title */
+            font-size: 1.2rem; /* Smaller font size */
+            font-weight: 300; /* Lighter weight */
+            margin-bottom: 1rem;
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+          }
+
+          .category-overlay button {
+            font-size: 0.8rem; /* Smaller button text */
+            font-weight: 400; /* Lighter button text */
+            margin-top: 10px;
+          }
+
+          /* Shop Now Button */
+          .shop-now-btn {
+            padding: 0.8rem 2rem;
+            background: white;
+            color: black;
+            border: none;
+            border-radius: 4px;
+            font-weight: 400;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+            cursor: pointer;
+          }
+
+          .add-to-cart-btn {
+            padding: 0.8rem 2rem;
+            background: white;
+            color: black;
+            border: none;
+            border-radius: 4px;
+            font-weight: 400;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+            cursor: pointer;
+          }
+
+          .category-item:hover .category-overlay h3,
+          .category-item:hover .shop-now-btn,
+          .category-item:hover .add-to-cart-btn {
+            transform: translateY(0);
+          }
+
+          .shop-now-btn:hover,
+          .add-to-cart-btn:hover {
+            background: black;
+            color: white;
+            transform: translateY(0) scale(1.05);
+          }
+
+          @media (max-width: 768px) {
+            .categories-grid {
+              grid-template-columns: 1fr;
+            }
+
+            .category-item.large {
+              grid-column: auto;
+              grid-row: auto;
+            }
+          }
+        `}</style>
       </div>
     </Layout>
   );

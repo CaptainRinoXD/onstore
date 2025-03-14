@@ -10,8 +10,14 @@ import {
   Select,
   Button,
   InputNumber,
+  Upload,
 } from "antd";
 import { useEffect, useState } from "react";
+import {
+  RcFile,
+  UploadFile,
+  UploadChangeParam,
+} from "antd/es/upload/interface";
 
 interface IProps {
   isCreateModalOpen: boolean;
@@ -30,25 +36,63 @@ const ProductCreate = (props: IProps) => {
   const [listColl, setlistColl] = useState([]);
   const [listType, setlistType] = useState([]);
   const [sizeStocks, setSizeStocks] = useState<SizeStock[]>([]);
+  const [fileList, setFileList] = useState<UploadFile[]>([]);
 
   const handleCloseCreateModal = () => {
     form.resetFields();
     setIsCreateModalOpen(false);
-    setSizeStocks([]); // Reset sizeStocks when closing the modal
+    setSizeStocks([]);
+    setFileList([]);
   };
 
   const onFinish = async (values: any) => {
-    const res = await handleCreateProductAction({
-      ...values,
-      sizeStock: sizeStocks,
-    });
-    if (res) {
+    try {
+      // 1. Create the product first (without images)
+      const productResult = await handleCreateProductAction({
+        ...values,
+        images: [], // Initially no images
+        sizeStock: sizeStocks,
+      });
+
+      if (!productResult || !productResult._id) {
+        notification.error({
+          message: "Product creation failed",
+          description: "Failed to create the product.",
+        });
+        return;
+      }
+
+      const productId = productResult._id;
+
+      // 2. Upload the images using the product ID
+      const formData = new FormData();
+      fileList.forEach((file) => {
+        formData.append("image", file.originFileObj as any, file.name);
+      });
+      formData.append("productId", productId);
+
+      const uploadResponse = await fetch(
+        "http://localhost:3002/api/images/upload",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      if (!uploadResponse.ok) {
+        const errorData = await uploadResponse.json();
+        throw new Error(errorData.message || "Image upload failed");
+      }
+
+      const uploadResult = await uploadResponse.json();
+      console.log("Image upload successful:", uploadResult);
+
       handleCloseCreateModal();
       message.success("Create succeed!");
-    } else {
+    } catch (error: any) {
       notification.error({
-        message: "Create error",
-        description: res?.message,
+        message: "Error",
+        description: error.message,
       });
     }
   };
@@ -109,7 +153,7 @@ const ProductCreate = (props: IProps) => {
   }, []);
 
   const handleAddSizeStock = () => {
-    setSizeStocks([...sizeStocks, { size: "", quantity: 0 }]); // Add an empty size stock entry
+    setSizeStocks([...sizeStocks, { size: "", quantity: 0 }]);
   };
 
   const handleSizeStockChange = (
@@ -119,16 +163,40 @@ const ProductCreate = (props: IProps) => {
   ) => {
     const newSizeStocks = [...sizeStocks];
 
-    // Assert types to ensure that the assignment is safe
     if (field === "size") {
-      // When field is 'size', value should be a string
-      newSizeStocks[index].size = value as string; // Type assertion to indicate it's a string
+      newSizeStocks[index] = { ...newSizeStocks[index], size: value as string };
     } else if (field === "quantity") {
-      // When field is 'quantity', value should be a number
-      newSizeStocks[index].quantity = value as number; // Type assertion to indicate it's a number
+      newSizeStocks[index] = {
+        ...newSizeStocks[index],
+        quantity: value as number,
+      };
     }
 
     setSizeStocks(newSizeStocks);
+  };
+
+  const handleUploadChange = ({
+    fileList: newFileList,
+  }: UploadChangeParam<UploadFile>) => {
+    setFileList(newFileList);
+  };
+
+  const uploadProps = {
+    beforeUpload: (file: RcFile) => {
+      console.log("beforeUpload file: ", file);
+      return true;
+    },
+    onChange: handleUploadChange,
+    multiple: true,
+    fileList: fileList,
+    onRemove: (file: UploadFile) => {
+      setFileList((prevFileList) => {
+        const index = prevFileList.indexOf(file);
+        const newFileList = prevFileList.slice();
+        newFileList.splice(index, 1);
+        return newFileList;
+      });
+    },
   };
 
   return (
@@ -140,7 +208,13 @@ const ProductCreate = (props: IProps) => {
       maskClosable={false}
       width={800}
     >
-      <Form name="basic" onFinish={onFinish} layout="vertical" form={form}>
+      <Form
+        name="basic"
+        onFinish={onFinish}
+        layout="vertical"
+        form={form}
+        encType="multipart/form-data"
+      >
         <Row gutter={[15, 15]}>
           <Col span={8}>
             <Form.Item
@@ -220,19 +294,11 @@ const ProductCreate = (props: IProps) => {
               <Input />
             </Form.Item>
           </Col>
-          <Col span={8}>
-            <Form.Item
-              label="Image"
-              name="images"
-              rules={[
-                { required: false, message: "Please input your image!" },
-                {
-                  type: 'url',
-                  message: 'Please enter a valid URL',
-                },
-              ]}
-            >
-              <Input />
+          <Col span={16}>
+            <Form.Item label="Images">
+              <Upload {...uploadProps}>
+                <Button icon={null}>Select Files</Button>
+              </Upload>
             </Form.Item>
           </Col>
         </Row>

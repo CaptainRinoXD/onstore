@@ -1,23 +1,34 @@
 "use client";
 
-import { doUpdateCartAction } from "@/redux/order/orderSlice";
 import { formatPrice } from "@/utils/functionShare";
 import { Input, TableCell, TableRow, Typography } from "@mui/material";
 import Image from "next/image";
-import React, { useEffect } from "react";
-import { useDispatch } from "react-redux";
+import React, { useEffect, useState, useCallback } from "react";
+import path from "path";
 
 interface IProps {
-  detailCart: ICart;
+  detailCart: IcartItem;
   index: number;
+  getCart: () => void;
+}
+
+interface IcartItem {
+  product: {
+    _id: string;
+    name: string;
+    images: string[];
+    price: number;
+  };
+  quantity: number;
+  size: string;
+  _id: string;
 }
 
 const MainRowCart = (props: IProps) => {
-  const { detailCart, index } = props;
-  const dispatch = useDispatch();
-  const [value, setValue] = React.useState(detailCart.quantity);
-  const [totalPrice, setTotalPrice] = React.useState(
-    detailCart.detail.price * detailCart.quantity
+  const { detailCart, index, getCart } = props;
+  const [value, setValue] = useState(detailCart.quantity);
+  const [totalPrice, setTotalPrice] = useState(
+    detailCart.product.price * detailCart.quantity
   );
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -27,31 +38,58 @@ const MainRowCart = (props: IProps) => {
   const handleBlur = () => {
     if (value < 1) {
       setValue(1);
-    } else if (value > detailCart.detail.quantity) {
-      setValue(detailCart.detail.quantity);
     }
   };
 
+  const updateQuantity = useCallback(async () => {
+    try {
+      const response = await fetch(
+        `http://localhost:3002/api/carts/cartId/items/${detailCart._id}`,
+        {
+          method: "PUT",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ quantity: value }),
+        }
+      );
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      getCart();
+    } catch (error) {
+      console.log("error update item cart:" + error);
+    }
+  }, [value, detailCart._id, getCart]);
+
+  const getImageURL = (imageName: string | undefined) => {
+    if (!imageName) return "/placeholder.png"; // Handle undefined or empty imageName
+    const baseName = path.parse(imageName).name;
+    const url = `http://localhost:3002/api/images/${baseName}`;
+    return url;
+  };
+
   useEffect(() => {
-    dispatch(
-      doUpdateCartAction({
-        quantity: value,
-        detail: detailCart,
-        _id: detailCart._id,
-      })
-    );
-    setTotalPrice(value * detailCart.detail.price);
-  }, [value]);
+    setTotalPrice(value * detailCart.product.price);
+    updateQuantity();
+  }, [value, updateQuantity, detailCart.product.price]);
+
   return (
     <TableRow key={detailCart._id}>
       <TableCell align="left">{index + 1}</TableCell>
       <TableCell align="center">
-        <Image src={detailCart.detail?.images?.[0]} alt="" width={50} height={50} />
+        <Image
+          src={getImageURL(detailCart.product?.images?.[0])}
+          alt=""
+          width={50}
+          height={50}
+        />
       </TableCell>
-      <TableCell align="right">{detailCart.detail.name}</TableCell>
+      <TableCell align="right">{detailCart.product.name}</TableCell>
       <TableCell align="right">
         <Typography sx={{ color: "#de8ebe", fontSize: "18px" }}>
-          {formatPrice(detailCart.detail.price)}₫
+          {formatPrice(detailCart.product.price)}₫
         </Typography>
       </TableCell>
       <TableCell align="right">
@@ -63,7 +101,6 @@ const MainRowCart = (props: IProps) => {
           inputProps={{
             step: 1,
             min: 1,
-            max: detailCart.detail.quantity,
             type: "number",
             "aria-labelledby": "input-slider",
           }}

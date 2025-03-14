@@ -1,6 +1,7 @@
 "use client";
 import Layout from "antd/es/layout";
 import Menu from "antd/es/menu";
+import "@ant-design/v5-patch-for-react-19";
 import {
   AppstoreOutlined,
   MailOutlined,
@@ -42,6 +43,10 @@ const AdminSideBar = () => {
         {
           key: "Collection",
           label: <Link href={"/dashboard/coll"}>Manage Collection</Link>,
+        },
+        {
+          key: "order",
+          label: <Link href={"/dashboard/order"}>Manage Order</Link>,
         },
       ],
     },

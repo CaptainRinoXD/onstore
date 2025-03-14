@@ -11,6 +11,7 @@ const {
     getProductReviews,
     updateSizeStock,
     getProductsByProductType,
+    searchProducts,
 } = require('../routesControllers/productController');
 const arthorizeRole = require('../Middleware/arthorizeRole');
 const validateAccessToken = require('../Middleware/arthorizeToken');
@@ -29,6 +30,6 @@ router.post('/api/products/:id/reviews', addReviewToProduct); // Add a review to
 router.get('/api/products/:id/reviews', getProductReviews); // Get all reviews of a product
 router.put('/api/products/:id/sizeStock', updateSizeStock); // Add or update size stock
 router.get('/api/product/:productType/products', getProductsByProductType); // Get all products of a product type
-
+router.get('/api/product_search/search', searchProducts); // Search products
 // Export the product routes
 module.exports = router;

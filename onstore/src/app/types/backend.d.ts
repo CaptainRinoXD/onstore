@@ -31,15 +31,26 @@ interface IProduct {
   
 
 interface IOrder {
+  "_id": string;
     "userId": string;
-    "totalPrice": number;
+    "total": number;
     "address": string;
     "phone": string;
+    "shippingStatus": string;
+    "paymentStatus": string;
+    "paymentMethod": string;
     "pay": string; 
-    "detail": IDetailOrder[]
+    "createdAt": Date;
+    "detail": IDetailOrder[];
+    "items": IDetailOrder[]
 }
 
 interface IDetailOrder {
     "productId": string;
+    "product": IProduct;
+    "name": string;
     "quantity": number;
+    "price": number;
+  "_id": string;
+
 }

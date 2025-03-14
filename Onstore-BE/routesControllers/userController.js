@@ -76,8 +76,12 @@ const userAuthStatus = async (req, res) => {
     try {
         const refreshToken = req.cookies.refreshToken; // Access the cookie
         if (refreshToken && req.user) {
-          res.status(200).json({ isLoggedIn: true, isGuested: false, username: req.user.username });
-          console.log("passing through");
+            if (req.user.role == "admin" || req.user.role == "employee") {
+                res.status(200).json({isLoggedIn: true, isGuested: false, username: req.user.username, role: req.user.role})
+            } else {
+                res.status(200).json({ isLoggedIn: true, isGuested: false, username: req.user.username });
+                console.log("passing through");
+            }
         } else if(req.guestId) {
             res.status(200).json({ isLoggedIn: false, isGuested: true});
         } else {

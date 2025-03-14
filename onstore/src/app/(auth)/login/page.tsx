@@ -1,5 +1,5 @@
 "use client"; 
-import { useEffect, useState } from "react";
+import { MouseEventHandler, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Layout from "../../components/Layout";
 
@@ -56,6 +56,10 @@ export default function LoginPage() {
         }
     }, []);
 
+    const handleCreateAccount: MouseEventHandler<HTMLButtonElement> = (event) => {
+        router.push('/register');
+    };
+    
     return ( 
         <Layout>
             <div className="flex justify-center items-center h-screen">
@@ -110,6 +114,7 @@ export default function LoginPage() {
                         <p>Registering for this site allows you to access your order status and history. We'll get a new account set up for you in no time.</p>
                         <button 
                             className="mt-4 w-full bg-green-600 text-white p-2 rounded-md hover:bg-green-700"
+                            onClick={handleCreateAccount}
                         >
                             CREATE AN ACCOUNT
                         </button>

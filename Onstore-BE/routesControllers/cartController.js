@@ -29,12 +29,12 @@ const addItemToCart = async (req, res) => {
 
         if (req.user) {
             cart = await Cart.findOne({ user: req.user.id });
-            if (!cart) {
+             if (!cart) {
                 cart = new Cart({ user: req.user.id });
             }
         } else if (req.guestId) {
             cart = await Cart.findOne({ guestID: req.guestId });
-            if (!cart) {
+             if (!cart) {
                 cart = new Cart({ guestID: req.guestId });
             }
         }
@@ -47,17 +47,25 @@ const addItemToCart = async (req, res) => {
 
         const existingItem = cart.items.find(item => item.product.toString() === productId);
         
-        if (existingItem) {
-            existingItem.quantity += quantity;
-        } else {
-            cart.items.push({ product: productId, quantity });
-        }
-
         const product = await Product.findById(productId);
-        if (product) {
-            cart.total += product.price * quantity;
+        if (!product) {
+            return res.status(404).json({ message: 'Product not found' });
         }
 
+
+        if (existingItem) {
+             // Update quantity if item already exists
+             // Update the total by removing the old quantity and adding the new quantity
+             cart.total -= existingItem.quantity * existingItem.price
+             existingItem.quantity += quantity;
+             cart.total += existingItem.quantity * product.price
+        } else {
+             // Add new item to the cart, including the price
+             cart.items.push({ product: productId, name: product.name, quantity, price: product.price });
+              cart.total += product.price * quantity;
+        }
+
+      
         await cart.save();
         res.status(200).json(cart); // Ensure only one res is sent
     } catch (error) {
@@ -84,10 +92,7 @@ const removeItemFromCart = async (req, res) => {
         if (itemIndex === -1) return res.status(404).json({ message: 'Item not found' });
 
         // Adjust the total before removing the item
-        const product = await Product.findById(cart.items[itemIndex].product);
-        if(product){
-            cart.total -= cart.items[itemIndex].quantity * product.price;
-        }
+        cart.total -= cart.items[itemIndex].quantity * cart.items[itemIndex].price;
         
 
         cart.items.splice(itemIndex, 1);
@@ -114,15 +119,16 @@ const updateItemInCart = async (req, res) => {
         const item = cart.items.find(item => item.id === req.params.itemId);
         if (!item) return res.status(404).json({ message: 'Item not found' });
 
-        // Adjust total price before updating quantity
-        const product = await Product.findById(item.product);
+         // Adjust total price before updating quantity
+         const product = await Product.findById(item.product);
+
         if(product){
-              cart.total -= item.quantity * product.price;
+              cart.total -= item.quantity * item.price;
               item.quantity = quantity; // Update quantity
-              cart.total += quantity * product.price; // Update total
+              item.price = product.price // updated the price in case the product price was updated
+              cart.total += quantity * item.price; // Update total
         }
-
-
+        
         await cart.save();
         res.status(200).json(cart);
     } catch (error) {
