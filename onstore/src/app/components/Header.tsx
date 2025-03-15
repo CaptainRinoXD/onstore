@@ -407,7 +407,7 @@ const Header: React.FC<HeaderProps> = ({
               </div>
             ))}
           </div>
-          <button
+          <button 
             onClick={() => setSearchVisible((prev) => !prev)}
             className="bg-transparent border-none focus:outline-none">
             <svg
@@ -426,7 +426,7 @@ const Header: React.FC<HeaderProps> = ({
           </button>
         </div>
 
-        <div className="relative cursor-pointer mr-4">
+        <div id="cartButton" className="relative cursor-pointer mr-4">
           <div onClick={toggleDrawer(true)}>
             <ShoppingCartOutlinedIcon />
           </div>
