@@ -120,7 +120,7 @@ const ProductTable = (props: any) => {
         }}
       >
         <span>Manager Product</span>
-        <Button onClick={() => setIsCreateModalOpen(true)}>
+        <Button id="create_product" onClick={() => setIsCreateModalOpen(true)}>
           Create Product
         </Button>
       </div>
