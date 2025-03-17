@@ -42,6 +42,7 @@
     "@types/react-dom": "^19",
     "@types/styled-components": "^5.1.34",
     "cypress": "^14.2.0",
+    "cypress-iframe": "^1.0.1",
     "eslint": "^9",
     "eslint-config-next": "15.1.2",
     "postcss": "^8",

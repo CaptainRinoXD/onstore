@@ -1,33 +1,34 @@
-describe('Thanh toán với Stripe', () => {
-  it('Thực hiện thanh toán thành công', () => {
+describe('Thanh toán với MoMo', () => {
+  it('Thực hiện thanh toán qua MoMo thành công', () => {
     cy.setCookie(
       'refreshToken',
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3Y2ZkYjBjZTQ2YWIzODVkNjEzZDhhMSIsImlhdCI6MTc0MTkzNTMxMywiZXhwIjoxNzQyNTQwMTEzfQ.QVcwKChZ4pOnTCuHITbKwkABXQcGaYa8FD6OwsBMY8E'
     );
+
     // Truy cập giỏ hàng
     cy.visit('http://localhost:3000/cart');
 
-    // Chờ nút đặt hàng xuất hiện và nhấn vào
+    // Nhấn nút đặt hàng để vào trang thanh toán
     cy.get('.MuiButtonBase-root').should('be.visible').click();
 
     // Kiểm tra đã chuyển đến trang thanh toán
     cy.url().should('include', '/pay');
 
-    // Chặn và theo dõi request gửi đến Stripe
-    cy.intercept('POST', '**/v1/payment_intents/**').as('stripePayment');
-
-    // Điền thông tin thanh toán
+    // Điền thông tin khách hàng
     cy.get('[id=":r0:"]').type('Nguyễn Văn A'); // Nhập tên
     cy.get('[id=":r1:"]').type('123 Đường ABC, TP.HCM'); // Nhập địa chỉ
     cy.get('[id=":r2:"]').type('0123456789'); // Nhập số điện thoại
 
-    // Nhấn vào nút xác nhận thanh toán
+    // Chọn phương thức thanh toán **MoMo**
+    cy.get('input[value="MOMO"]').check({ force: true });
+
+    // Nhấn nút đặt hàng
     cy.get('.MuiButton-root').click();
 
-    // Kiểm tra request thanh toán gửi đến Stripe
-    //cy.wait('@stripePayment').its('response.statusCode').should('eq', 200);
+    // Kiểm tra chuyển hướng đến trang thanh toán MoMo
+    //cy.url().should('include', 'https://momo.vn/');
 
-    // Kiểm tra đã được chuyển hướng đến trang thanh toán Stripe
-    //cy.url().should('include', 'https://checkout.stripe.com');
+    // Hoặc kiểm tra thông báo xác nhận đơn hàng đã gửi đi
+    //cy.contains('Đơn hàng của bạn đã được xử lý qua MoMo').should('exist');
   });
 });

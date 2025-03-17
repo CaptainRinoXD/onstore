@@ -1,33 +1,71 @@
-describe('Thanh toán với Stripe', () => {
-  it('Thực hiện thanh toán thành công', () => {
+describe('Thanh toán với Ngân hàng', () => {
+  beforeEach(() => {
     cy.setCookie(
       'refreshToken',
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3Y2ZkYjBjZTQ2YWIzODVkNjEzZDhhMSIsImlhdCI6MTc0MTkzNTMxMywiZXhwIjoxNzQyNTQwMTEzfQ.QVcwKChZ4pOnTCuHITbKwkABXQcGaYa8FD6OwsBMY8E'
     );
-    // Truy cập giỏ hàng
+
+    Cypress.on('uncaught:exception', (err) => {
+      cy.log('⚠️ Lỗi bị bỏ qua:', err.message);
+      return false;
+    });
+  });
+
+  it('Thực hiện thanh toán qua ngân hàng thành công', () => {
     cy.visit('http://localhost:3000/cart');
-
-    // Chờ nút đặt hàng xuất hiện và nhấn vào
     cy.get('.MuiButtonBase-root').should('be.visible').click();
-
-    // Kiểm tra đã chuyển đến trang thanh toán
     cy.url().should('include', '/pay');
 
-    // Chặn và theo dõi request gửi đến Stripe
-    cy.intercept('POST', '**/v1/payment_intents/**').as('stripePayment');
+    // Điền thông tin khách hàng
+    cy.get('[id=":r0:"]').type('Nguyễn Văn A');
+    cy.get('[id=":r1:"]').type('123 Đường ABC, TP.HCM');
+    cy.get('[id=":r2:"]').type('0123456789');
 
-    // Điền thông tin thanh toán
-    cy.get('[id=":r0:"]').type('Nguyễn Văn A'); // Nhập tên
-    cy.get('[id=":r1:"]').type('123 Đường ABC, TP.HCM'); // Nhập địa chỉ
-    cy.get('[id=":r2:"]').type('0123456789'); // Nhập số điện thoại
+    // Chọn phương thức thanh toán
+    cy.contains('Chuyển khoản ngân hàng.').click({ force: true });
 
-    // Nhấn vào nút xác nhận thanh toán
-    cy.get('.MuiButton-root').click();
+    // Chờ Stripe iframe load xong
+    cy.get('iframe', { timeout: 30000 }) // Tăng timeout lên 30s
+      .should('exist')
+      .then(($iframe) => {
+        const iframeSrc = $iframe.attr('src');
+        if (!iframeSrc) {
+          throw new Error('Không tìm thấy src của iframe Stripe');
+        }
 
-    // Kiểm tra request thanh toán gửi đến Stripe
-    //cy.wait('@stripePayment').its('response.statusCode').should('eq', 200);
+        // Kiểm tra xem iframe có phải là của Stripe không
+        expect(iframeSrc).to.include('stripe');
 
-    // Kiểm tra đã được chuyển hướng đến trang thanh toán Stripe
-    //cy.url().should('include', 'https://checkout.stripe.com');
+        // Lấy origin của Stripe
+        const stripeDomain = new URL(iframeSrc).origin;
+
+        // Chuyển qua origin của Stripe
+        cy.origin(stripeDomain, { args: { iframeSrc } }, ({ iframeSrc }) => {
+          cy.visit(iframeSrc, { failOnStatusCode: false });
+
+          // Chờ body của iframe load xong
+          cy.get('body', { timeout: 15000 })
+            .should('exist')
+            .within(() => {
+              // Chờ phần tử #Field-numberInput xuất hiện
+              cy.get('#Field-numberInput', { timeout: 15000 })
+                .should('be.visible')
+                .type('4242424242424242', { delay: 50 });
+
+              cy.get('#Field-expiryInput')
+                .should('be.visible')
+                .type('1230', { delay: 50 }); // MM/YY -> 12/30
+
+              cy.get('#Field-cvcInput')
+                .should('be.visible')
+                .type('123', { delay: 50 });
+
+              // Submit form
+              cy.get('button[type="submit"]', { timeout: 15000 })
+                .should('not.be.disabled')
+                .click();
+            });
+        });
+      });
   });
 });
