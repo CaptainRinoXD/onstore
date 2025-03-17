@@ -37,8 +37,29 @@ const getProductById = async (req, res) => {
 // Update a product
 const updateProduct = async (req, res) => {
     try {
-        const product = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true });
-        if (!product) return res.status(404).json({ message: 'Product not found' });
+        const { images, removedImages, ...otherData } = req.body;
+        const product = await Product.findById(req.params.id);
+
+        if (!product) {
+            return res.status(404).json({ message: 'Product not found' });
+        }
+
+        // Update other product data
+        for (const key in otherData) {
+            product[key] = otherData[key];
+        }
+
+        // Handle image removals
+        if (removedImages && Array.isArray(removedImages) && removedImages.length > 0) {
+            product.images = product.images.filter(image => !removedImages.includes(image));
+        }
+
+        // Handle image additions/updates
+        if (images && Array.isArray(images)) {
+            product.images = images;
+        }
+
+        await product.save();
         res.status(200).json(product);
     } catch (error) {
         res.status(500).json({ error: error.message });

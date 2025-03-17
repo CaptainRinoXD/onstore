@@ -1,6 +1,7 @@
 import {
   handleUpdateCollAction,
   handleUpdateProductTypeAction,
+  handleUploadCollectionImageAction
 } from "@/utils/actions";
 import {
   Modal,
@@ -12,6 +13,8 @@ import {
   notification,
   Select,
   Button,
+  UploadProps,
+  Upload,
 } from "antd";
 import { useEffect, useState } from "react";
 
@@ -22,16 +25,12 @@ interface IProps {
   setDataUpdate: any;
 }
 
-interface SizeStock {
-  size: string;
-  quantity: number;
-}
-
 const CollUpdate = (props: IProps) => {
   const { isUpdateModalOpen, setIsUpdateModalOpen, dataUpdate, setDataUpdate } =
     props;
 
   const [form] = Form.useForm();
+  const [fileList, setFileList] = useState<any[]>([]);
 
   useEffect(() => {
     if (dataUpdate) {
@@ -65,7 +64,35 @@ const CollUpdate = (props: IProps) => {
         });
       }
     }
+
+    if (fileList && fileList.length > 0) {
+        const formData = new FormData();
+        formData.append('collectionId', dataUpdate._id); // Send product type ID
+        formData.append('image', fileList[0]);
+
+        const uploadResult = await handleUploadCollectionImageAction(formData); // Call new action
+
+        if (!uploadResult.success) {
+          notification.error({
+            message: "Image upload error",
+            description: uploadResult.message,
+          });
+          return;
+        }
+        console.log('uploadResult',uploadResult)
+    }
   };
+  
+   const uploadProps: UploadProps = {
+        beforeUpload: (file) => {
+          setFileList([file]);
+          return false; // Prevent default upload
+        },
+        fileList: fileList,
+        onRemove: () => {
+          setFileList([]);
+        },
+      };
 
 
   return (
@@ -100,12 +127,10 @@ const CollUpdate = (props: IProps) => {
         </Row>
         <Row gutter={[15, 15]}>
           <Col span={8}>
-            <Form.Item
-              label="Image"
-              name="images"
-              rules={[{ required: true, message: "Please input your image!" }]}
-            >
-              <Input />
+            <Form.Item label="Image">
+              <Upload {...uploadProps}>
+                <Button>Select Image</Button>
+              </Upload>
             </Form.Item>
           </Col>
         </Row>

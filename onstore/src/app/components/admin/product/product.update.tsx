@@ -1,3 +1,4 @@
+// onstore/src/app/components/admin/product/product.update.tsx
 import { handleUpdateProductAction } from "@/utils/actions";
 import {
   Modal,
@@ -41,6 +42,7 @@ const UserUpdate = (props: IProps) => {
   const [listType, setlistType] = useState([]);
   const [sizeStocks, setSizeStocks] = useState<SizeStock[]>([]);
   const [fileList, setFileList] = useState<UploadFile[]>([]);
+  const [removedImages, setRemovedImages] = useState<string[]>([]); // Track removed images
 
   useEffect(() => {
     if (dataUpdate) {
@@ -74,6 +76,7 @@ const UserUpdate = (props: IProps) => {
     setIsUpdateModalOpen(false);
     setDataUpdate(null);
     setFileList([]);
+    setRemovedImages([]); // Clear removed images on close
   };
 
   const onFinish = async (values: any) => {
@@ -111,12 +114,22 @@ const UserUpdate = (props: IProps) => {
       const existingImages = dataUpdate.images || [];
 
       // 3. Combine existing and new image names
-      const allImages = [...existingImages, ...newImageNames];
+      const currentImages = fileList.map((file) => {
+        if (file.url) {
+          // Extract the image name from the URL
+          const urlParts = file.url.split('/');
+          return urlParts[urlParts.length - 1]; // Assuming the filename is the last part of the URL
+        }
+        return null; // Or handle the case where there is no URL
+      }).filter(Boolean); //remove null values
+
+      const allImages = [...new Set([...currentImages, ...newImageNames])];
 
       // 4. Update Product
       const res = await handleUpdateProductAction({
         ...values,
         images: allImages,
+        removedImages: removedImages, // Send the list of removed images
         sizeStock: sizeStocks,
         id: productId,
       });
@@ -236,6 +249,16 @@ const UserUpdate = (props: IProps) => {
     multiple: true,
     fileList: fileList,
     onRemove: (file: UploadFile) => {
+      // Identify the image to remove
+      let imageName = '';
+      if (file.url) {
+        const urlParts = file.url.split('/');
+        imageName = urlParts[urlParts.length - 1];
+      }
+
+      setRemovedImages((prevRemovedImages) => [...prevRemovedImages, imageName]);
+
+      // Update fileList
       setFileList((prevFileList) => {
         const index = prevFileList.indexOf(file);
         const newFileList = prevFileList.slice();

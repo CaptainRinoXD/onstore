@@ -1,5 +1,4 @@
 // onstore/src/app/components/admin/productType/productType.create.tsx
-import { handleCreateProductTypeAction } from "@/utils/actions";
 import {
   Modal,
   Input,
@@ -13,6 +12,7 @@ import {
   Button,
 } from "antd";
 import { useState } from "react";
+import { handleCreateProductTypeAction, handleUploadProductTypeImageAction } from "@/utils/actions"; // Import new action
 
 interface IProps {
   isCreateModalOpen: boolean;
@@ -29,6 +29,7 @@ const ProductTypeCreate = (props: IProps) => {
 
   const [form] = Form.useForm();
   const [fileList, setFileList] = useState<any[]>([]);
+  const [productTypeId, setProductTypeId] = useState<string | null>(null); // Store product type ID
 
   const uploadProps: UploadProps = {
     beforeUpload: (file) => {
@@ -45,25 +46,49 @@ const ProductTypeCreate = (props: IProps) => {
     form.resetFields();
     setIsCreateModalOpen(false);
     setFileList([]);
+    setProductTypeId(null); // Reset product type ID
   };
 
   const onFinish = async (values: any) => {
-    const formData = new FormData();
-    formData.append('name', values.name);
-    formData.append('description', values.description);
-    if (fileList && fileList.length > 0) {
-      formData.append('image', fileList[0]); // Correctly append the file
-    }
+    try {
+      // 1. Create the product type (without image)
+      const createResult = await handleCreateProductTypeAction(values);
 
-    const res = await handleCreateProductTypeAction(formData);
+      if (!createResult.success) {
+        notification.error({
+          message: "Create error",
+          description: createResult.message,
+        });
+        return;
+      }
 
-    if (res.success) { // Check for success property
+      const newProductTypeId = createResult.data._id; // Get the ID of the created product type
+      setProductTypeId(newProductTypeId);
+
+      // 2. Upload the image (if an image was selected)
+      if (fileList && fileList.length > 0) {
+        const formData = new FormData();
+        formData.append('productTypeId', newProductTypeId); // Send product type ID
+        formData.append('image', fileList[0]);
+
+        const uploadResult = await handleUploadProductTypeImageAction(formData); // Call new action
+
+        if (!uploadResult.success) {
+          notification.error({
+            message: "Image upload error",
+            description: uploadResult.message,
+          });
+          return;
+        }
+        console.log('uploadResult',uploadResult)
+      }
+
       handleCloseCreateModal();
       message.success("Create succeed!");
-    } else {
+    } catch (error: any) {
       notification.error({
-        message: "Create error",
-        description: res.message, // Display the error message
+        message: "Error",
+        description: error.message || "An unexpected error occurred",
       });
     }
   };
@@ -101,7 +126,7 @@ const ProductTypeCreate = (props: IProps) => {
         <Row gutter={[15, 15]}>
           <Col span={24}>
             <Form.Item label="Image">
-              <Upload {...uploadProps} >
+              <Upload {...uploadProps}>
                 <Button>Select Image</Button>
               </Upload>
             </Form.Item>

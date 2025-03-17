@@ -1,7 +1,7 @@
 // d:\-----.Projects\2024-OnlineStore_NodeJS\NEW\onstore\onstore\src\app\components\admin\productType\productType.table.tsx
 "use client";
 import {
-  handleDeleteProductAction,
+  handleDeleteProductTypeAction,
 } from "@/utils/actions";
 import { DeleteTwoTone, EditTwoTone } from "@ant-design/icons";
 import { Button, Image, Popconfirm, Table, Tag } from "antd"; 
@@ -10,6 +10,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import UserCreate from "./productType.create";
 import UserUpdate from "./productType.update";
+import path from "path";
 
 const ProductTypeTable = (props: any) => {
   const { products } = props;
@@ -20,6 +21,12 @@ const ProductTypeTable = (props: any) => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState<boolean>(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState<boolean>(false);
   const [dataUpdate, setDataUpdate] = useState<any>(null);
+  
+  const getImageURL = (imageName: string) => {
+      const baseName = path.parse(imageName).name;
+      const url = `http://localhost:3002/api/images/${baseName}`;
+      return url;
+    };
 
   const columns = [
     {
@@ -40,7 +47,7 @@ const ProductTypeTable = (props: any) => {
         title: "Image",
         dataIndex: "image",
         render: (image: any) => (
-            <Image src={image} height={40} alt="Product Type Image" />
+            <Image src={getImageURL(image)} height={40} alt="Product Type Image" />
         ),
     },
     {
@@ -61,7 +68,7 @@ const ProductTypeTable = (props: any) => {
               title={"Xác nhận xóa"}
               description={"Bạn có chắc chắn muốn xóa này ?"}
               onConfirm={async () =>
-                await handleDeleteProductAction(record?._id)
+                await handleDeleteProductTypeAction(record?._id)
               }
               okText="Xác nhận"
               cancelText="Hủy"
@@ -95,7 +102,7 @@ const ProductTypeTable = (props: any) => {
         }}
       >
         <span>Manager Product Type</span>
-        <Button onClick={() => setIsCreateModalOpen(true)}>Create Product Type</Button>
+        <Button id="create_productType" onClick={() => setIsCreateModalOpen(true)}>Create Product Type</Button>
       </div>
       <Table
         bordered

@@ -1,4 +1,6 @@
 const Product = require("../Model/product");
+const Collection = require("../Model/collection");
+const ProductType = require("../Model/productType");
 const path = require("path");
 const fs = require("fs");
 const crypto = require("crypto");
@@ -9,10 +11,23 @@ const uploadImage = async (req, res) => {
       return res.status(400).json({ message: "No files were uploaded." });
     }
 
-    const productId = req.body.productId;
+    const { productId, collectionId, productTypeId } = req.body;
+    let modelName = null;
+    let modelId = null;
 
-    if (!productId) {
-      return res.status(400).json({ message: "Product ID is required." });
+    if (productId) {
+      modelName = "Product";
+      modelId = productId;
+    } else if (collectionId) {
+      modelName = "Collection";
+      modelId = collectionId;
+    } else if (productTypeId) {
+      modelName = "ProductType";
+      modelId = productTypeId;
+    } else {
+      return res
+        .status(400)
+        .json({ message: "Model ID (productId, collectionId or productTypeId) is required." });
     }
 
     const files = req.files.image; // Access files correctly
@@ -42,22 +57,37 @@ const uploadImage = async (req, res) => {
             return;
           }
           try {
-            // Use $push to atomically add the new image name to the array
-            const product = await Product.findByIdAndUpdate(
-              productId,
-              { $push: { images: imageName } },
-              { new: true, useFindAndModify: false }
-            );
+            let updateResult;
 
-            if (!product) {
-              reject({ message: "Product not found during update." });
+            if (modelName === "Product") {
+              updateResult = await Product.findByIdAndUpdate(
+                modelId,
+                { $push: { images: imageName } },
+                { new: true, useFindAndModify: false }
+              );
+            } else if (modelName === "Collection") {
+              updateResult = await Collection.findByIdAndUpdate(
+                modelId,
+                { images: imageName }, // Overwrite existing image
+                { new: true, useFindAndModify: false }
+              );
+            } else if (modelName === "ProductType") {
+              updateResult = await ProductType.findByIdAndUpdate(
+                modelId,
+                { image: imageName }, // Overwrite existing image
+                { new: true, useFindAndModify: false }
+              );
+            }
+
+            if (!updateResult) {
+              reject({ message: `${modelName} not found during update.` });
               return;
             }
             resolve({ imageName }); // Resolve with an object containing imageName
           } catch (updateError) {
-            console.error("Error updating product:", updateError);
+            console.error("Error updating model:", updateError);
             reject({
-              message: "Failed to update product.",
+              message: `Failed to update ${modelName}.`,
               error: updateError.message,
             });
           }
@@ -71,7 +101,6 @@ const uploadImage = async (req, res) => {
       //results is now an array of {imageName: "..."}
 
       res.status(201).json({
-        // product: productId,  // You can still include the productId if needed.
         imageNames: results.map((r) => r.imageName), // Send back an array of image names
         message: "Images uploaded successfully.",
       });

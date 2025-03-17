@@ -1,5 +1,5 @@
 // onstore/src/app/components/admin/productType/productType.update.tsx
-import { handleUpdateProductTypeAction } from "@/utils/actions";
+import { handleUpdateProductTypeAction, handleUploadProductTypeImageAction } from "@/utils/actions";
 import {
   Modal,
   Input,
@@ -34,6 +34,15 @@ const UserTypeUpdate = (props: IProps) => {
       return false; // Prevent default upload
     },
     fileList: fileList,
+    onChange: (info) => {
+      if (info.fileList.length > 1) {
+        // Keep only the last uploaded file
+        const newFileList = [info.fileList.pop()];
+        setFileList(newFileList);
+      } else {
+        setFileList(info.fileList);
+      }
+    },
     onRemove: () => {
       setFileList([]);
     },
@@ -45,16 +54,16 @@ const UserTypeUpdate = (props: IProps) => {
         name: dataUpdate.name,
         description: dataUpdate.description,
       });
-      if (dataUpdate.image) {
-        setFileList([{
-          uid: '-1',
-          name: dataUpdate.image,
-          status: 'done',
-          url: dataUpdate.image,
-        }]);
-      }
+      // if (dataUpdate.image) {
+      //   setFileList([{
+      //     uid: '-1',
+      //     name: dataUpdate.image,
+      //     status: 'done',
+      //     url: dataUpdate.image,
+      //   }]);
+      // }
     }
-  }, [dataUpdate, form]); // Add form to the dependency array
+  }, [dataUpdate, form]);
 
   const handleCloseUpdateModal = () => {
     form.resetFields();
@@ -64,29 +73,45 @@ const UserTypeUpdate = (props: IProps) => {
   };
 
   const onFinish = async (values: any) => {
-    if (dataUpdate) {
-      const formData = new FormData();
-      formData.append('name', values.name);
-      formData.append('description', values.description);
-      formData.append('id', dataUpdate._id); // Append ID *before* the file
+    try {
+      if (dataUpdate) {
+        const res = await handleUpdateProductTypeAction({
+          ...values,
+          id: dataUpdate._id
+        });
 
-      if (fileList && fileList.length > 0) {
-        if (fileList[0].originFileObj) {
+        if (res.success) {
+          handleCloseUpdateModal();
+          message.success("Update succeed");
+
+          if (fileList.length > 0 && fileList[0].originFileObj) {
+            const formData = new FormData();
+            formData.append('productTypeId', dataUpdate._id);
             formData.append('image', fileList[0].originFileObj);
+
+            const uploadResult = await handleUploadProductTypeImageAction(formData);
+
+            if (!uploadResult.success) {
+              notification.error({
+                message: "Image upload error",
+                description: uploadResult.message,
+              });
+              return;
+            }
+            console.log('uploadResult', uploadResult);
+          }
+        } else {
+          notification.error({
+            message: "Update error",
+            description: res.message,
+          });
         }
       }
-
-      const res = await handleUpdateProductTypeAction(formData); // Pass only formData
-
-      if (res.success) {
-        handleCloseUpdateModal();
-        message.success("Update succeed");
-      } else {
-        notification.error({
-          message: "Update error",
-          description: res.message,
-        });
-      }
+    } catch (error: any) {
+      notification.error({
+        message: "Update error",
+        description: error.message || "An unexpected error occurred.",
+      });
     }
   };
 

@@ -6,6 +6,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import UserCreate from "./product.create";
 import UserUpdate from "./product.update";
+import path from "path";
 
 const ProductTable = (props: any) => {
   const { products } = props;
@@ -16,7 +17,11 @@ const ProductTable = (props: any) => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState<boolean>(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState<boolean>(false);
   const [dataUpdate, setDataUpdate] = useState<any>(null);
-
+  const getImageURL = (imageName: string) => {
+        const baseName = path.parse(imageName).name;
+        const url = `http://localhost:3002/api/images/${baseName}`;
+        return url;
+      };
   const columns = [
     {
       title: "STT",
@@ -57,7 +62,7 @@ const ProductTable = (props: any) => {
       title: "Ảnh",
       dataIndex: "images",
       render: (images: any) => (
-        <Image src={images?.[0]} height={40} alt="Product Image" />
+        <Image src={getImageURL(images?.[0])} height={40} alt="Product Image" />
       ),
     },
     {

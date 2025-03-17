@@ -265,6 +265,12 @@ const ProductsTypePage = () => {
     return <Layout>Loading...</Layout>;
   }
 
+  const getImageURL = (imageName: string) => {
+    const baseName = path.parse(imageName).name;
+    const url = `http://localhost:3002/api/images/${baseName}`;
+    return url;
+  };
+
   return (
     <Layout>
       <div style={{ backgroundColor: "var(--background)" }}>
@@ -525,7 +531,7 @@ const ProductsTypePage = () => {
                   />
                 ) : (
                   <img
-                    src={productType.image}
+                    src={getImageURL(productType.image)}
                     alt={productType.name}
                     className="rounded-md"
                   />

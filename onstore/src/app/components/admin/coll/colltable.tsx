@@ -1,6 +1,6 @@
 "use client";
 import {
-  handleDeleteCollAction,
+  handleDeleteCollAction
 } from "@/utils/actions";
 import { DeleteTwoTone, EditTwoTone } from "@ant-design/icons";
 import { Button, Image, Popconfirm, Table, Tag } from "antd"; 
@@ -8,6 +8,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import UserCreate from "./coll.create";
 import UserUpdate from "./coll.update";
+import path from "path";
 
 const CollTable = (props: any) => {
   const { products } = props;
@@ -18,6 +19,12 @@ const CollTable = (props: any) => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState<boolean>(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState<boolean>(false);
   const [dataUpdate, setDataUpdate] = useState<any>(null);
+
+  const getImageURL = (imageName: string) => {
+    const baseName = path.parse(imageName).name;
+    const url = `http://localhost:3002/api/images/${baseName}`;
+    return url;
+  };
 
   const columns = [
     {
@@ -38,7 +45,7 @@ const CollTable = (props: any) => {
       title: "Ảnh",
       dataIndex: "images",
       render: (images: any) => (
-        <Image src={images} height={40} alt="Collection Image" />
+        <Image src={getImageURL(images)} height={40} alt="Collection Image" />
       ),
     },
     {
@@ -93,7 +100,7 @@ const CollTable = (props: any) => {
         }}
       >
         <span>Manager Product Type</span>
-        <Button onClick={() => setIsCreateModalOpen(true)}>Create Product Type</Button>
+        <Button id="create-collection" onClick={() => setIsCreateModalOpen(true)}>Create Collection</Button>
       </div>
       <Table
         bordered

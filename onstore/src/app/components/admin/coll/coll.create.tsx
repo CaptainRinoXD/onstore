@@ -1,4 +1,5 @@
-import { handleCreateCollAction, handleCreateProductAction, handleCreateProductTypeAction } from "@/utils/actions";
+import {handleUploadCollectionImageAction, handleCreateCollAction, handleCreateProductAction, handleCreateProductTypeAction } from "@/utils/actions";
+import { Button } from "@mui/material";
 import {
   Modal,
   Input,
@@ -7,6 +8,8 @@ import {
   Col,
   message,
   notification,
+  UploadProps,
+  Upload,
 } from "antd";
 import { useEffect, useState } from "react";
 
@@ -20,21 +23,58 @@ const CollCreate = (props: IProps) => {
   const { isCreateModalOpen, setIsCreateModalOpen } = props;
 
   const [form] = Form.useForm();
+  const [fileList, setFileList] = useState<any[]>([]);
 
   const handleCloseCreateModal = () => {
     form.resetFields();
     setIsCreateModalOpen(false);
   };
 
+  const uploadProps: UploadProps = {
+    beforeUpload: (file) => {
+      setFileList([file]);
+      return false; // Prevent default upload
+    },
+    fileList: fileList,
+    onRemove: () => {
+      setFileList([]);
+    },
+  };
+
   const onFinish = async (values: any) => {
-    const res = await handleCreateCollAction({ ...values });
-    if (res) {
-      handleCloseCreateModal();
-      message.success("Create succeed!");
-    } else {
+    try{
+        const res = await handleCreateCollAction(values);
+        if (res) {
+          handleCloseCreateModal();
+          message.success("Create succeed!");
+        } else {
+          notification.error({
+            message: "Create error",
+            description: res?.message,
+          });
+        }
+
+        const newCollectionId = res.data._id;
+        if (fileList && fileList.length > 0) {
+          const formData = new FormData();
+          formData.append('collectionId', newCollectionId); // Send product type ID
+          formData.append('image', fileList[0]);
+
+          const uploadResult = await handleUploadCollectionImageAction(formData); // Call new action
+
+          if (!uploadResult.success) {
+            notification.error({
+              message: "Image upload error",
+              description: uploadResult.message,
+            });
+            return;
+          }
+          console.log('uploadResult',uploadResult)
+        }
+    } catch (error: any) {
       notification.error({
-        message: "Create error",
-        description: res?.message,
+        message: "Error",
+        description: error.message || "An unexpected error occurred",
       });
     }
   };
@@ -70,13 +110,11 @@ const CollCreate = (props: IProps) => {
           </Col>
         </Row>
         <Row gutter={[15, 15]}>
-          <Col span={12}>
-            <Form.Item
-              label="Image"
-              name="images"
-              rules={[{ required: true, message: "Please input your image!" }]}
-            >
-              <Input />
+          <Col span={24}>
+            <Form.Item label="Image">
+              <Upload {...uploadProps}>
+                <Button>Select Image</Button>
+              </Upload>
             </Form.Item>
           </Col>
         </Row>

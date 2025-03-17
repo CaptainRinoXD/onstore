@@ -117,7 +117,7 @@ const Header: React.FC<HeaderProps> = ({
               className="relative overflow-hidden w-32 h-32 mb-2 transform transition-transform duration-300 hover:scale-110"
               onClick={() => router.push(`/producttypes?type=${type._id}`)}>
               <img
-                src={type.image}
+                src={getImageURL(type.image)}
                 alt={type.name}
                 className="w-full h-full object-cover"
               />
