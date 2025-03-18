@@ -4,8 +4,8 @@ describe('API Login Test', () => {
           method: 'POST',
           url: 'http://localhost:3002/users/login',
           body: {
-              email: 'nguyendangkhoa@example.com',
-              password: 'password123'
+              email: 'test@gmail.com',
+              password: '123456'
           }
       }).then((response) => {
           expect(response.status).to.eq(201);
