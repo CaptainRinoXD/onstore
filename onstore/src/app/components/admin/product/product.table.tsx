@@ -18,10 +18,15 @@ const ProductTable = (props: any) => {
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState<boolean>(false);
   const [dataUpdate, setDataUpdate] = useState<any>(null);
   const getImageURL = (imageName: string) => {
-        const baseName = path.parse(imageName).name;
-        const url = `http://localhost:3002/api/images/${baseName}`;
-        return url;
-      };
+    if (imageName == null ) {
+          window.location.reload();
+          return "/image_default.png";
+    } else {
+      const baseName = path.parse(imageName).name;
+      const url = `http://localhost:3002/api/images/${baseName}`;
+      return url;
+    }
+  };
   const columns = [
     {
       title: "STT",

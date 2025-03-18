@@ -80,13 +80,13 @@ describe('Admin Sidebar Navigation Tests', () => {
   //   cy.contains('Create succeed!', { timeout: 10000 }).should('be.visible');
   // });
 
-  // it('should update a productType', ()=> {
-  //   cy.contains('Manage Product Type', {timeout: 10000}).click();
-  //   cy.get('#product_type_update').click();
-  //   cy.get('#basic_name', { timeout: 5000 }).should('be.visible').type(' Update testing');
-  //   cy.get('.ant-modal-footer > .ant-btn-primary').click();
-  //   cy.contains('Create succeed!', { timeout: 10000 }).should('be.visible');
-  // });
+  it('should update a productType', ()=> {
+    cy.contains('Manage Product Type', {timeout: 10000}).click();
+    cy.get('#product_type_update').click();
+    cy.get('#basic_name', { timeout: 5000 }).should('be.visible').type(' Update testing');
+    cy.get('.ant-modal-footer > .ant-btn-primary').click();
+    cy.contains('Create succeed!', { timeout: 10000 }).should('be.visible');
+  });
   
   // it('should navigate to Manage Collection page', () => {
   //   // Click the "Manage Collection" link
