@@ -1,10 +1,9 @@
-describe('API Register Test', () => {
-  it('should register successfully', () => {
+describe('API Login Test', () => {
+  it('should login successfully', () => {
       cy.request({
           method: 'POST',
-          url: 'http://localhost:3002/users/registration',
+          url: 'http://localhost:3002/users/login',
           body: {
-              username: 'abcdefghik',
               email: 'nguyendangkhoa@example.com',
               password: 'password123'
           }
