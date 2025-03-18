@@ -17,7 +17,7 @@ describe('Kiểm tra chức năng tìm kiếm với từ khóa không liên quan
 
     // Nhập liệu vào ô tìm kiếm
     cy.get('#search-input')
-      .type('Váy')
+      .type('máy')
       //.type('{backspace}');
 
     // Nhấn lại vào nút '.size-6'
