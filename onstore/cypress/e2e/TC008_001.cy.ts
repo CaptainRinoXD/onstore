@@ -2,7 +2,7 @@ describe('Thanh toán với Stripe', () => {
   it('Thực hiện thanh toán thành công', () => {
     cy.setCookie(
       'refreshToken',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3Y2ZkYjBjZTQ2YWIzODVkNjEzZDhhMSIsImlhdCI6MTc0MTkzNTMxMywiZXhwIjoxNzQyNTQwMTEzfQ.QVcwKChZ4pOnTCuHITbKwkABXQcGaYa8FD6OwsBMY8E'
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3Y2ZkYjBjZTQ2YWIzODVkNjEzZDhhMSIsImlhdCI6MTc0MjI4MzcxMCwiZXhwIjoxNzQyODg4NTEwfQ.fIPNrbg3b98nwNReQevXyaUsJzJRSKpjaCV4zZ0OONE'
     );
     // Truy cập giỏ hàng
     cy.visit('http://localhost:3000/cart');

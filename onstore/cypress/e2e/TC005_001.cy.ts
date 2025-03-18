@@ -1,4 +1,4 @@
-describe('TC004-004: Kiểm tra thêm đúng sản phẩm vào giỏ hàng', () => {
+describe('TC005-001: Kiểm tra hiển thị danh sách sản phẩm trong giỏ hàng', () => {
 
   it('should log in successfully', () => {
     // Truy cập trang login

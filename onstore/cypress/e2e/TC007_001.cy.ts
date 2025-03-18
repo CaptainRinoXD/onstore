@@ -2,7 +2,7 @@ describe('Kiểm tra trang thanh toán', () => {
   beforeEach(() => {
     cy.setCookie(
       'refreshToken',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3Y2ZkYjBjZTQ2YWIzODVkNjEzZDhhMSIsImlhdCI6MTc0MTkzNTMxMywiZXhwIjoxNzQyNTQwMTEzfQ.QVcwKChZ4pOnTCuHITbKwkABXQcGaYa8FD6OwsBMY8E'
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3Y2ZkYjBjZTQ2YWIzODVkNjEzZDhhMSIsImlhdCI6MTc0MjI4MzcxMCwiZXhwIjoxNzQyODg4NTEwfQ.fIPNrbg3b98nwNReQevXyaUsJzJRSKpjaCV4zZ0OONE'
     );
     cy.visit('http://localhost:3000/pay'); // Điều hướng đến trang thanh toán
   });
