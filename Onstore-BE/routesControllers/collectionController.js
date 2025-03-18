@@ -34,15 +34,32 @@ const getCollectionById = async (req, res) => {
     }
 };
 
-// Update a collection
 const updateCollection = async (req, res) => {
-    try {
-        const updatedCollection = await Collection.findByIdAndUpdate(req.params.id, req.body, { new: true });
-        if (!updatedCollection) return res.status(404).json({ message: 'Collection not found' });
-        res.status(200).json(updatedCollection);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
+  try {
+    const { name, description } = req.body;
+    const updatedFields = {};
+
+    if (name) {
+      updatedFields.name = name;
     }
+    if (description) {
+      updatedFields.description = description;
+    }
+
+    const updatedCollection = await Collection.findByIdAndUpdate(
+      req.params.id,
+      updatedFields, 
+      { new: true }
+    );
+
+    if (!updatedCollection) {
+      return res.status(404).json({ message: 'Collection not found' });
+    }
+
+    res.status(200).json(updatedCollection);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 };
 
 // Delete a collection

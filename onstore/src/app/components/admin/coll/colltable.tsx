@@ -54,6 +54,7 @@ const CollTable = (props: any) => {
         return (
           <>
             <EditTwoTone
+              id = "update_coll"
               twoToneColor="#f57800"
               style={{ cursor: "pointer", margin: "0 20px" }}
               onClick={() => {

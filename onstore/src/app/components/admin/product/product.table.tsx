@@ -79,6 +79,7 @@ const ProductTable = (props: any) => {
         return (
           <>
             <EditTwoTone
+              id ="updateProduct"
               twoToneColor="#f57800"
               style={{ cursor: "pointer", margin: "0 20px" }}
               onClick={() => {

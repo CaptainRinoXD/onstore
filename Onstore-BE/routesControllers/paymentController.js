@@ -191,6 +191,7 @@ exports.checkPaymentStatus = async(req,res) => {
     try {
       const result = await axios(options);
       const { resultCode } = result.data;
+      let paymentStatus ="";
       console.log(resultCode);
       if (resultCode === 0) {
         // Update payment status if the transaction was successful
@@ -199,15 +200,18 @@ exports.checkPaymentStatus = async(req,res) => {
             { paymentStatus: 'Successful', paymentMethod: 'MOMO' },
             { new: true }
         );
-        console.log("Thanh toan thanh cong!");
+        //console.log("Thanh toan thanh cong!");
+        paymentStatus = "Thanh toán thành công";
         if(!updatedOrder) {
           return res.status(404).json({message: "Order not found!"})
         }
       }else {
-        console.log("Thanh toan khong thanh cong");
+        //console.log("Thanh toan khong thanh cong");
+        paymentStatus = "(MOMO)Thanh toán không thành công hoặc không còn tồn tại";
       }
-        
-        return res.status(200).json(result.data);
+        console.log(paymentStatus);
+        //return res.status(200).json(result.data);
+        return res.status(200).json({message: paymentStatus});
     } catch (error) {
         console.log(error);
     }

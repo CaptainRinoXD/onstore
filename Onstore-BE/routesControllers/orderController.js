@@ -110,14 +110,14 @@ exports.getAllUserOrders = async (req, res) => {
 
 // Update the order status
 exports.updateOrderStatus = async (req, res) => {
-    const { shippingStatus,paymentStatus } = req.body; // Expecting the new status in the request body
+    const { shippingStatus,paymentStatus,id } = req.body;
     try {
 
-        const order = await Order.findById(req.params.orderId);
+        const order = await Order.findById(id);
         //  if (!order || (order.user && order.user.toString() !== req.user.id)) {
         //      return res.status(404).json({ message: 'Order not found or does not belong to the user' });
         // }
-        if (!order || !order.user) {
+        if (!order || (!order.user && !order.guestId )) {
             return res.status(404).json({ message: 'Order not found or does not belong to the user' });
        }
         order.paymentStatus = paymentStatus; // Update status

@@ -33,9 +33,10 @@ const OrderTable = (props: IProps) => {
                    message.error(`Failed to check payment status for order ${orderId}`)
                   return;
                 }
-            message.success(`Payment status checked for order ${orderId}`)
-           router.refresh()
-
+              const data = await response.json();
+              message.success(`Payment status checked for order ${orderId} with message "${data.message}"`)
+              router.refresh()
+              
       } catch (error) {
          console.error("Error checking payment status:", error);
           message.error(`Failed to check payment status for order ${orderId}`)
@@ -108,6 +109,7 @@ const OrderTable = (props: IProps) => {
                 return (
                     <>
                         <EditTwoTone
+                            id = "update_order"
                             twoToneColor="#f57800"
                             style={{ cursor: "pointer", margin: "0 20px" }}
                             onClick={() => {
@@ -116,6 +118,7 @@ const OrderTable = (props: IProps) => {
                             }}
                         />
                         <Button
+                          id = "check_order"
                            type="primary"
                            danger
                             onClick={() => handleCheckPaymentStatus(record._id)}

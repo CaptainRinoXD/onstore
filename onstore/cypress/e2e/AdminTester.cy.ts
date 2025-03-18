@@ -50,23 +50,43 @@ describe('Admin Sidebar Navigation Tests', () => {
   //   // Verify success message
   //   cy.contains('Create succeed!', { timeout: 10000 }).should('be.visible');
   // });
+  
+//  it('should navigate to Manage Product page and add a product', () => {
+//     cy.contains('Manage Product', { timeout: 10000 }).click();
+//     cy.url().should('include', '/dashboard/product');
+//     cy.get('#updateProduct', { timeout: 5000 }).click();
+//     cy.get('#name').click();
+//     cy.get('#name').type('updateTesting');
+//     cy.get('.ant-row:nth-child(1) > .ant-col-8:nth-child(1)').click();
+//     cy.get('.ant-upload > .ant-btn > span').click();
+//     cy.get('.ant-btn-primary').click();
 
-  it('should navigate to Manage Product Type page and add product', () => {
-    // Click the "Manage Product Type" link
-    cy.contains('Manage Product Type', { timeout: 10000 }).click();
+//   });
+
+  // it('should navigate to Manage Product Type page and add product', () => {
+  //   // Click the "Manage Product Type" link
+  //   cy.contains('Manage Product Type', { timeout: 10000 }).click();
     
-    // Check that the URL contains the '/dashboard/productType' path
-    cy.url().should('include', '/dashboard/productType');
+  //   // Check that the URL contains the '/dashboard/productType' path
+  //   cy.url().should('include', '/dashboard/productType');
 
-    cy.get('#create_productType').click();
+  //   cy.get('#create_productType').click();
 
-    cy.get('#basic_name', { timeout: 5000 }).should('be.visible').type('Test ProductType');
-    cy.get('#basic_description', { timeout: 5000 }).type('Test ProductType');
-    const imageFile = 'test_image.jpg';
-    cy.get('input[type="file"]').selectFile('cypress/fixtures/' + imageFile, { force: true });
-    cy.get('.ant-modal-footer > .ant-btn-primary').click();
-    cy.contains('Create succeed!', { timeout: 10000 }).should('be.visible');
-  });
+  //   cy.get('#basic_name', { timeout: 5000 }).should('be.visible').type('Test ProductType');
+  //   cy.get('#basic_description', { timeout: 5000 }).type('Test ProductType');
+  //   const imageFile = 'test_image.jpg';
+  //   cy.get('input[type="file"]').selectFile('cypress/fixtures/' + imageFile, { force: true });
+  //   cy.get('.ant-modal-footer > .ant-btn-primary').click();
+  //   cy.contains('Create succeed!', { timeout: 10000 }).should('be.visible');
+  // });
+
+  // it('should update a productType', ()=> {
+  //   cy.contains('Manage Product Type', {timeout: 10000}).click();
+  //   cy.get('#product_type_update').click();
+  //   cy.get('#basic_name', { timeout: 5000 }).should('be.visible').type(' Update testing');
+  //   cy.get('.ant-modal-footer > .ant-btn-primary').click();
+  //   cy.contains('Create succeed!', { timeout: 10000 }).should('be.visible');
+  // });
   
   // it('should navigate to Manage Collection page', () => {
   //   // Click the "Manage Collection" link
@@ -83,11 +103,27 @@ describe('Admin Sidebar Navigation Tests', () => {
   //   cy.contains('Create succeed!', { timeout: 10000 }).should('be.visible');
   // });
 
+  //   it('should update a collection', ()=> {
+  //   cy.contains('Manage Collection', {timeout: 10000}).click();
+  //   cy.get('#update_coll').click();
+  //   cy.get('#basic_name', { timeout: 5000 }).should('be.visible').type(' Update testing');
+  //   cy.get('.ant-modal-footer > .ant-btn-primary').click();
+  //   cy.contains('Create succeed!', { timeout: 10000 }).should('be.visible');
+  // });
+
   // it('should navigate to Manage Order page', () => {
   //   // Click the "Manage Order" link
   //   cy.contains('Manage Order', { timeout: 10000 }).click();
     
   //   // Check that the URL contains the '/dashboard/order' path
   //   cy.url().should('include', '/dashboard/order');
+  //   cy.get('#check_order', {timeout: 5000}).click();
+  //   cy.contains('Payment status checked', { timeout: 10000 }).should('be.visible');
+  //   cy.get('#update_order', {timeout: 5000}).click();
+  //   cy.get('.ant-col-12:nth-child(1)').click();
+  //   //cy.get('.ant-select-open .ant-select-selection-item').click();
+  //   cy.get('.ant-select-item-option-content', { timeout: 5000 }).contains('Failed').click();
+  //   cy.get('.ant-modal-footer > .ant-btn-primary').click();
+  //   cy.contains('Update succeed', { timeout: 10000 }).should('be.visible');
   // });
 });

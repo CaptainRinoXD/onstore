@@ -20,6 +20,7 @@ import {
   UploadFile,
   UploadChangeParam,
 } from "antd/es/upload/interface";
+import path, { parse } from "path";
 
 interface IProps {
   isUpdateModalOpen: boolean;
@@ -64,7 +65,7 @@ const UserUpdate = (props: IProps) => {
             uid: `-${index}`, // Unique ID for each file
             name: `image-${index}`, // Filename
             status: "done", // Status of the file
-            url: `http://localhost:3002/api/images/${imageUrl}`, // URL of the image
+            url: `http://localhost:3002/api/images/${imageUrl}`,
           }))
         : [];
       setFileList(initialFileList);
