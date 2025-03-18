@@ -5,6 +5,6 @@ describe('Kiểm tra chức năng sắp xếp sản phẩm từ Z-A', () => {
     //cy.get('div:nth-child(2) > .filter-container > div:nth-child(1) > label').click();
 
     // Click vào checkbox bằng cách ép buộc
-    cy.get('#za').click({ force: true });
+    cy.get('#gender-women').click({ force: true });
   });
 });
