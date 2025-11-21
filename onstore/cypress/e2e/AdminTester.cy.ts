@@ -1,7 +1,7 @@
 describe('Admin Sidebar Navigation Tests', () => {
   beforeEach(() => {
     // First, set the cookie to authenticate as an Admin
-    cy.setCookie('refreshToken', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NTg2MzIzMDhlMjA4YWJmYjFjYjgxNCIsImlhdCI6MTc0MTkzOTQ4NiwiZXhwIjoxNzQyNTQ0Mjg2fQ.8fLQiROhHK6E3lwqicfF_5xEt9lzGfuFa7r_Lgvqr30');
+    cy.setCookie('refreshToken', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3Y2ZkYjBjZTQ2YWIzODVkNjEzZDhhMSIsImlhdCI6MTc0MjU0ODYyOCwiZXhwIjoxNzQzMTUzNDI4fQ.7hlsILdSdEqH8fkrSzWSvocfdhcII0OornnXwUvaF9A');
     cy.visit('/'); // Adjust the URL if necessary
     cy.get('#userModal', { timeout: 5000 }).click(); // Open user modal
     cy.get('#Dashboard', { timeout: 10000 }).click(); // Click on Dashboard to access admin sidebar
